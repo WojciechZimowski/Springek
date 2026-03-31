@@ -2,16 +2,18 @@ package org.example;
 
 import org.apache.commons.codec.digest.DigestUtils;
 
+import java.io.File;
+
 public class Authentication {
+    private static Hasher hasher = new Hasher();
     private final IUserRepository userRepository;
 
 
     public Authentication(IUserRepository userRepository) {
         this.userRepository = userRepository;
     }
-
     public static String hashPassword(String password) {
-        return DigestUtils.sha256Hex(password);
+        return hasher.hash(password);
     }
 
     public User authenticate(String login, String password) {

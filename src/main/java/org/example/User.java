@@ -1,7 +1,9 @@
 package org.example;
 
-import java.util.HashMap;
-import java.util.Map;
+import org.apache.commons.codec.digest.DigestUtils;
+
+import java.io.*;
+import java.util.*;
 import java.util.function.Function;
 
 public class User {
@@ -12,7 +14,9 @@ public class User {
     private String rentedVehicle;
 
 
-
+    public static String hashPassword(String password) {
+        return DigestUtils.sha256Hex(password);
+    }
     public User(String login, String password, String role, String rentedVehicle) {
         this.login = login;
         this.password = password;

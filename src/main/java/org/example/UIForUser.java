@@ -9,6 +9,7 @@ public class UIForUser {
     private IUserRepository userRepo;
     private User user;
     private Authentication authentication;
+    private static Hasher hasher = new Hasher();
 
 
     public  UIForUser(IVehicleRepository repo) {
@@ -24,7 +25,8 @@ public class UIForUser {
         System.out.println("2. Dodaj pojazd");
         System.out.println("3. Usuń pojazd");
         System.out.println("4. Lista użytkowników i ich wypożyczeń");
-        System.out.println("5. Wyjdź");
+        System.out.println("5.Usuń użytkownika");
+        System.out.println("6. Wyjdź");
 
         String adminInput = scanner.nextLine();
         if(adminInput.equals("1")){
@@ -33,17 +35,22 @@ public class UIForUser {
         else if(adminInput.equals("2")){
             System.out.println("Podaj dane pojazdu w formacie CSV");
             String csvInput = scanner.nextLine();
-            String[] parts = csvInput.split(",");
+            boolean ok = false;
+            String[] parts = csvInput.split(";");
 
             if(parts[0].equals("CAR")){
-                repo.add(new Car(parts[1], parts[2], parts[3], Integer.parseInt(parts[4]), Integer.parseInt(parts[5]), Boolean.parseBoolean(parts[6])));
+                ok=repo.add(new Car(parts[1], parts[2], parts[3], Integer.parseInt(parts[4]), Integer.parseInt(parts[5]), Boolean.parseBoolean(parts[6])));
             }else if(parts[0].equals("MOTORCYCLE")){
                 String category = parts[7];
 
-                repo.add(new Motorcycle(parts[1], parts[2], parts[3], Integer.parseInt(parts[4]), Integer.parseInt(parts[5]), Boolean.parseBoolean(parts[6]), parts[7]));
+                ok=repo.add(new Motorcycle(parts[1], parts[2], parts[3], Integer.parseInt(parts[4]), Integer.parseInt(parts[5]), Boolean.parseBoolean(parts[6]), parts[7]));
             }
-            System.out.println("Pojazd dodany");
-
+            if(ok) {
+                System.out.println("Pojazd dodany");
+            }
+            else {
+                System.out.println("Błąd id");
+            }
         }
         else if(adminInput.equals("3")){
             System.out.println("Podaj id pojazd");
@@ -71,11 +78,18 @@ public class UIForUser {
             }
         }
         else if(adminInput.equals("5")){
+            System.out.println("Usuń użytkownika");
+            String userName = scanner.nextLine();
+            userRepo.deleteUser(userName);
+            System.out.println("Użytkownik usunięty");
+        }
+        else if(adminInput.equals("6")){
             return false;
         }
         return true;
 
     }
+
     private boolean userMenu(){
         System.out.println("\n-- WYPOŻYCZALNIA POJAZDÓW--");
         System.out.println("1.Lista pojazdów");
@@ -124,9 +138,12 @@ public class UIForUser {
         else if(userInput.equals("4")){
             User cur = userRepo.getUser(user.getLogin());
             System.out.println("Moje dane: " + cur.toString());
-            if(cur.getRentedVehicle() != null && !cur.getRentedVehicle().isEmpty()){
-                Vehicle v = repo.getVehicle(cur.getRentedVehicle());
-                System.out.println("Dane pojazdu: "+v.toString());
+            String rentedId = cur.getRentedVehicle();
+            if(rentedId != null && !rentedId.trim().isEmpty()) {
+                Vehicle v = repo.getVehicle(rentedId);
+                if (v != null) {
+                    System.out.println("Dane pojazdu: " + v.toString());
+                }
             }
         }
         else if(userInput.equals("5")){
@@ -139,32 +156,65 @@ public class UIForUser {
 
 
     }
-    public void start(){
+    private void registerMenu(){
+
+            System.out.println("\n--REJESTRACJA--");
+            System.out.println("Login: ");
+            String login = scanner.nextLine();
+
+            if(userRepo.getUser(login) != null){
+                System.out.println("Użytkownik już istnieje");
+                return;
+            }
+            System.out.println("Password: ");
+            String password = scanner.nextLine();
+            String hashedPassowrd = hasher.hash(password);
+            userRepo.addUser(new User(login, hashedPassowrd, Role.USER.toString(), " "));
+    }
+    private boolean loginMenu() {
         boolean run = true;
-        while(run){
+
+        while (run) {
             System.out.println("\n--LOGOWANIE--");
             System.out.println("Login: ");
-            String login  = scanner.nextLine();
+            String login = scanner.nextLine();
             System.out.println("Password: ");
             String password = scanner.nextLine();
 
-            user=authentication.authenticate(login,password);
-            if(user==null){
+            user = authentication.authenticate(login, password);
+            if (user == null) {
                 System.out.println("Invalid username or password");
-                return;
+                return false;
             }
-            if(user.getRole().equals("ADMIN")){
-                boolean inMenu=true;
-                while(inMenu){
-                    inMenu=adminMenu();
+            if (user.getRole().equals("ADMIN")) {
+                boolean inMenu = true;
+                while (inMenu) {
+                    inMenu = adminMenu();
                 }
             }
-            if(user.getRole().equals("USER")){
-                boolean inMenu=true;
-                while(inMenu){
-                    inMenu=userMenu();
+            if (user.getRole().equals("USER")) {
+                boolean inMenu = true;
+                while (inMenu) {
+                    inMenu = userMenu();
                 }
 
+            }
+        }
+        return true;
+    }
+    public void start(){
+        boolean run = true;
+        while(run) {
+            System.out.println("\n--MENU--");
+            System.out.println("1. Logowanie ");
+
+            System.out.println("2. Rejestracja ");
+            String input = scanner.nextLine();
+            if (input.equals("1")) {
+                loginMenu();
+            }
+            else if (input.equals("2")) {
+                registerMenu();
             }
         }
     }

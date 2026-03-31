@@ -14,7 +14,19 @@ public class IVehicleRepositoryImpl implements IVehicleRepository{
         creators.put("CAR", p -> new Car(p[1], p[2], p[3], Integer.parseInt(p[4]), (int)Double.parseDouble(p[5]), Boolean.parseBoolean(p[6])));
 
         creators.put("MOTORCYCLE", p -> new Motorcycle(p[1], p[2], p[3], Integer.parseInt(p[4]), (int)Double.parseDouble(p[5]), Boolean.parseBoolean(p[6]), p[7]));
-        load();
+        File file = new File(path);
+        this.vehicles.clear();
+        try (BufferedReader br = new BufferedReader(new FileReader(file))) {
+            String line;
+            while ((line = br.readLine()) != null) {
+                String[] parts = line.split(";");
+                Vehicle v = creators.getOrDefault(parts[0], p -> null).apply(parts);
+
+                Optional.ofNullable(v).ifPresent(this.vehicles::add);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
 
     }
     @Override
@@ -22,7 +34,13 @@ public class IVehicleRepositoryImpl implements IVehicleRepository{
         for (Vehicle v : vehicles){
             if(v.getId().equals(id) && !v.isRented()){
                 v.setRented(true);
-                save();
+                try (PrintWriter pw = new PrintWriter(new FileOutputStream(path))) {
+                    for (Vehicle ve : vehicles) {
+                        pw.println(ve.toCSV());
+                    }
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
                 return true;
             }
         }
@@ -34,7 +52,13 @@ public class IVehicleRepositoryImpl implements IVehicleRepository{
             for (Vehicle v : vehicles) {
                 if (v.getId().equals(id) && v.isRented()) {
                     v.setRented(false);
-                    save();
+                    try (PrintWriter pw = new PrintWriter(new FileOutputStream(path))) {
+                        for (Vehicle ve : vehicles) {
+                            pw.println(ve.toCSV());
+                        }
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
                     return true;
                 }
 
@@ -58,49 +82,42 @@ public class IVehicleRepositoryImpl implements IVehicleRepository{
 
     @Override
     public boolean add(Vehicle vehicle) {
+
+        for (Vehicle vec : vehicles) {
+            if(vec.getId().equals(vehicle.getId())){
+                System.out.println("Błąd");
+                return false;
+            }
+        }
         Vehicle v = vehicle.copy();
         vehicles.add(v);
-        save();
+        try (PrintWriter pw = new PrintWriter(new FileOutputStream(path))) {
+
+            for (Vehicle ve : vehicles) {
+
+                pw.println(ve.toCSV());
+            }
+            return true;
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
         return false;
     }
 
     @Override
     public boolean remove(String id) {
         vehicles.removeIf(v -> v.getId().equals(id));
-        save();
-        return false;
-    }
-
-
-    @Override
-    public void save() {
         try (PrintWriter pw = new PrintWriter(new FileOutputStream(path))) {
-            for (Vehicle v : vehicles) {
-                pw.println(v.toCSV());
+            for (Vehicle ve : vehicles) {
+                pw.println(ve.toCSV());
             }
         } catch (IOException e) {
             e.printStackTrace();
         }
+        return false;
     }
 
-    @Override
-    public void load() {
-        File file = new File(path);
-        this.vehicles.clear();
-        try (BufferedReader br = new BufferedReader(new FileReader(file))) {
-            String line;
-            while ((line = br.readLine()) != null) {
-                String[] parts = line.split(";");
-                Vehicle v = creators.getOrDefault(parts[0], p -> null).apply(parts);
-
-                Optional.ofNullable(v).ifPresent(this.vehicles::add);
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
 
 
-
-    }
 
 }
