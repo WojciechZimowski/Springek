@@ -1,8 +1,7 @@
-package org.example;
+package org.example.services;
 
-import org.apache.commons.codec.digest.DigestUtils;
-
-import java.io.File;
+import org.example.models.User;
+import org.example.repositories.IUserRepository;
 
 public class Authentication {
     private static Hasher hasher = new Hasher();

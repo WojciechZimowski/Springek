@@ -1,5 +1,12 @@
 package org.example;
 
+import org.example.models.*;
+import org.example.repositories.IUserRepository;
+import org.example.repositories.IVehicleRepository;
+import org.example.repositories.impl.UserRepository;
+import org.example.services.Authentication;
+import org.example.services.Hasher;
+
 import java.util.List;
 import java.util.Scanner;
 
