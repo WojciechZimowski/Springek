@@ -11,11 +11,9 @@ import java.util.Map;
 
 @Getter
 @Setter
-@NoArgsConstructor
-@AllArgsConstructor
 @Builder
 public  class Vehicle implements Serializable {
-    private static final long serialVersionUID = 1L;
+
     private String id;
     private String category;
     private String brand;
@@ -62,7 +60,7 @@ public  class Vehicle implements Serializable {
             if(attributes == null) return null;
             return attributes.get(attributeName);
     }
-    public void addAtribute(String key, Object value) {
+    public void addAttribute(String key, Object value) {
         if(this.attributes == null){
             this.attributes = new HashMap<>();
         }
@@ -77,8 +75,8 @@ public  class Vehicle implements Serializable {
     @Override
     public String toString() {
        StringBuilder builder = new StringBuilder();
-       builder.append(String.format("[%s] %s %s (%d) | Rejestracja: %s| Cena: %.2f zł",
-               category, brand, model, year, plate, price));
+       builder.append(String.format("ID: %s | [%s] %s %s (%d) | Rejestracja: %s| Cena: %.2f zł",
+               id, category, brand, model, year, plate, price));
        if(attributes!=null && !attributes.isEmpty()) {
            builder.append("|Dodatki:").append(attributes);
        }
