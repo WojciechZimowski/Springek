@@ -1,4 +1,4 @@
-//package org.example.models;
+package org.example.models;//package org.example.models;
 //
 //public class Car extends Vehicle {
 //

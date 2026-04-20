@@ -4,17 +4,16 @@ import org.example.db.JsonFileStorage;
 import org.example.repositories.IUserRepository;
 import org.example.models.User;
 
-import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-public class UserRepository implements IUserRepository {
+public class UserJsonRepository implements IUserRepository {
     private final JsonFileStorage<User> jsonFileStorage;
     private static List<User> users=new ArrayList<>();
 
-    public UserRepository(JsonFileStorage<User> jsonFileStorage) {
+    public UserJsonRepository(JsonFileStorage<User> jsonFileStorage) {
         this.jsonFileStorage = jsonFileStorage;
         this.users = jsonFileStorage.load();
     }

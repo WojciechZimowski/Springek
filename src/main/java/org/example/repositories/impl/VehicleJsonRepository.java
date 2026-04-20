@@ -4,15 +4,13 @@ import org.example.db.JsonFileStorage;
 import org.example.models.Vehicle;
 import org.example.repositories.IVehicleRepository;
 
-import java.io.*;
 import java.util.*;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 
-public class IVehicleRepositoryImpl implements IVehicleRepository {
+public class VehicleJsonRepository implements IVehicleRepository {
     private JsonFileStorage<Vehicle> storage;
     private List<Vehicle> vehicles =  new ArrayList<>();
-    public IVehicleRepositoryImpl(JsonFileStorage<Vehicle> storage) {
+    public VehicleJsonRepository(JsonFileStorage<Vehicle> storage) {
         this.storage = storage;
         this.vehicles = storage.load();
     }

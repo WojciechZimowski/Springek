@@ -11,9 +11,9 @@ import java.lang.reflect.Type;
 import org.example.repositories.IUserRepository;
 import org.example.repositories.IVehicleRepository;
 import org.example.repositories.RentalRepository;
-import org.example.repositories.impl.IVehicleRepositoryImpl;
+import org.example.repositories.impl.VehicleJsonRepository;
 import org.example.repositories.impl.RentalJsonRepository;
-import org.example.repositories.impl.UserRepository;
+import org.example.repositories.impl.UserJsonRepository;
 import org.example.services.AuthService;
 
 import java.util.ArrayList;
@@ -21,7 +21,7 @@ import java.util.ArrayList;
 public class Main {
     public static void main(String[] args) {
 
-        // 1. Definiujemy TYPY dla GSONa (żeby wiedział, jak czytać listy obiektów)
+
         Type userListType = new TypeToken<ArrayList<User>>(){}.getType();
         Type vehicleListType = new TypeToken<ArrayList<Vehicle>>(){}.getType();
         Type rentalListType = new TypeToken<ArrayList<Rental>>(){}.getType();
@@ -32,8 +32,8 @@ public class Main {
         JsonFileStorage<Rental> rentalStorage = new JsonFileStorage<>("rentals.json", rentalListType);
 
 
-        IUserRepository userRepo = new UserRepository(userStorage);
-        IVehicleRepository vehicleRepo = new IVehicleRepositoryImpl(vehicleStorage);
+        IUserRepository userRepo = new UserJsonRepository(userStorage);
+        IVehicleRepository vehicleRepo = new VehicleJsonRepository(vehicleStorage);
         RentalRepository rentalRepo = new RentalJsonRepository(rentalStorage);
 
 
