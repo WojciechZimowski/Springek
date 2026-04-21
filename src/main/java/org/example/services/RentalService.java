@@ -35,4 +35,17 @@ public class RentalService {
             rentalJsonRepository.save(r);
         }, () -> { throw new RuntimeException("Nie znaleziono aktywnego wypożyczenia dla tego auta."); });
     }
+    public boolean isVehicleRented(String vId) {
+        return rentalJsonRepository.findByVehicleIdAndReturnDateIsNull(vId).isPresent();
+    }
+    public List<Rental> findActiveRentalsByUser(String userId) {
+        return rentalJsonRepository.findAll().stream()
+                .filter(r -> r.getUserId().equals(userId) && r.isActive())
+                .toList();
+    }
+    public List<Rental> findAllRentalsByUserId(String userId) {
+        return rentalJsonRepository.findAll().stream()
+                .filter(r -> r.getUserId().equals(userId))
+                .toList();
+    }
 }

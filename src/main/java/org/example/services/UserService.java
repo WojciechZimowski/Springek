@@ -27,4 +27,9 @@ public class UserService {
     }
 
     public List<User> findAllUsers() { return userJsonRepository.findAll(); }
+    public User findUserByLogin(String login) {
+        return userJsonRepository.findByLogin(login)
+                .orElseThrow(() -> new RuntimeException("Użytkownik nie istnieje w bazie."));
+    }
+
 }
