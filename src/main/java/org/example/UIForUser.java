@@ -285,7 +285,7 @@ public class UIForUser {
             Rental selectedRental = myActiveRentals.get(choice - 1);
             selectedRental.setReturnDateTime(LocalDateTime.now().toString());
 
-            rentalService.rentVehicle(currentUser.getId(), selectedRental.getVehicleId());
+            rentalService.returnVehicle(selectedRental.getVehicleId());
             System.out.println("Pojazd został pomyślnie zwrócony!");
 
         } catch (NumberFormatException e) {
