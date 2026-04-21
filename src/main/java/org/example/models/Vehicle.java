@@ -22,6 +22,7 @@ public  class Vehicle implements Serializable {
     private String plate;
     private Double price;//warto zrobic klase do waluty
 
+
     private Map<String,Object> attributes;
 
     public Vehicle(  String id,String category,String brand, String model, Integer year,String plate, Double price, Map<String,Object> attributes) {

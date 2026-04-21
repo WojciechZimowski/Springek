@@ -4,7 +4,9 @@ import org.example.models.Rental;
 import org.example.repositories.RentalRepository;
 import org.example.repositories.impl.RentalJsonRepository;
 
+import java.time.LocalDateTime;
 import java.util.List;
+import java.util.UUID;
 
 public class RentalService {
     private final RentalJsonRepository rentalJsonRepository;
@@ -13,12 +15,24 @@ public class RentalService {
         this.rentalJsonRepository = rentalJsonRepository;
     }
 
-    public boolean vehicleHasActiveRental(String id){
+    public void rentVehicle(String uId, String vId) {
+        if (rentalJsonRepository.findByVehicleIdAndReturnDateIsNull(vId).isPresent()) {
+            throw new RuntimeException("Pojazd jest już wypożyczony.");
+        }
 
+        Rental rental = Rental.builder()
+                .id(UUID.randomUUID().toString())
+                .userId(uId)
+                .vehicleId(vId)
+                .rentDateTime(LocalDateTime.now().toString())
+                .build();
+        rentalJsonRepository.save(rental);
     }
-    public List<Rental> findUserRentals(String id){}
-    public boolean rentVehicle(String uId, String vId){}
-    public boolean returnVehicle(String uId){}
-    public boolean findActiveRentalByUserId(String id){}
-    public List<Rental> findAllRentals(){}
+
+    public void returnVehicle(String vId) {
+        rentalJsonRepository.findByVehicleIdAndReturnDateIsNull(vId).ifPresentOrElse(r -> {
+            r.setReturnDateTime(LocalDateTime.now().toString());
+            rentalJsonRepository.save(r);
+        }, () -> { throw new RuntimeException("Nie znaleziono aktywnego wypożyczenia dla tego auta."); });
+    }
 }
