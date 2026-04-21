@@ -11,7 +11,7 @@ public class UIForUser {
     private final VehicleService vehicleService;
     private final UserService userService;
     private final RentalService rentalService;
-    private final VehicleCategoryConfigService configService; // Nowość!
+    private final VehicleCategoryConfigService configService;
     private final AuthService authService;
     private final Scanner scanner;
     private User currentUser;
