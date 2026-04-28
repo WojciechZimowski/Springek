@@ -281,7 +281,7 @@ public class UIForUser {
             System.out.println((i + 1) + ". " + v.getBrand() + " (Data: " + r.getRentDateTime() + ")");
         }
 
-
+//huh
         System.out.print("\nWybierz numer auta do zwrotu (lub 0 aby anulować): ");
         try {
             int choice = Integer.parseInt(scanner.nextLine());
