@@ -270,7 +270,7 @@ public class UIForUser {
             System.out.println("Nie masz obecnie żadnych wypożyczonych pojazdów.");
             return;
         }
-
+//url ma być zmienną srodowiskow,ą
 
         System.out.println("\n--- TWOJE WYPOŻYCZENIA ---");
         for (int i = 0; i < myActiveRentals.size(); i++) {
