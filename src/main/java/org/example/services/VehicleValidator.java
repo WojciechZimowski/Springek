@@ -16,6 +16,9 @@ public class VehicleValidator {
 
         if (vehicle.getBrand() == null || vehicle.getBrand().isBlank())
             throw new RuntimeException("Marka nie może być pusta!");
+        if(!configService.categoryExists(vehicle.getCategory())){
+            throw new RuntimeException("BŁĄD: Kategoria "+vehicle.getCategory()+" Nie istnieje");
+        }
 
 
         VehicleCategoryConfig config = configService.getByCategory(vehicle.getCategory());

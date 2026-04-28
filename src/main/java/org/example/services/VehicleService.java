@@ -25,7 +25,7 @@ public class VehicleService {
     }
     public void removeVehicle(String id) {
         if(rentalRepository.findByVehicleIdAndReturnDateIsNull(id).isPresent()) {
-            throw new RuntimeException("Vehicle with id " + id + " is rented");
+            throw new RuntimeException("Pojazd " + id + " jest wypożyczony!");
         }
         vehicleRepository.deleteById(id);
     }

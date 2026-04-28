@@ -144,7 +144,10 @@ public class UIForUser {
             vehicleService.addVehicle(v);
 
             System.out.println("Dodano!");
-        } catch (Exception e) {
+        }catch (RuntimeException e){
+            System.out.println(e.getMessage());
+        }
+        catch (Exception e) {
             System.out.println("Błąd danych!");
         }
     }
@@ -175,6 +178,8 @@ public class UIForUser {
             System.out.println("Pojazd został trwale usunięty.");
         } catch (NumberFormatException e) {
             System.out.println("Błąd: Wpisz cyfrę!");
+        }catch(RuntimeException e){
+            System.out.println("Bład: "+e.getMessage());
         }
     }
 
@@ -212,6 +217,8 @@ public class UIForUser {
             System.out.println("Użytkownik " + selectedUser.getLogin() + " został usunięty.");
         } catch (NumberFormatException e) {
             System.out.println("Błąd: Wpisz cyfrę!");
+        } catch(RuntimeException e){
+            System.out.println("Bład: "+e.getMessage());
         }
     }
 
@@ -247,7 +254,10 @@ public class UIForUser {
 
                 rentalService.rentVehicle(currentUser.getId(), selected.getId());
             System.out.println("Wypożyczono: " + selected.getBrand());
-        } catch (Exception e) {
+        }catch (RuntimeException e){
+            System.out.println(e.getMessage());
+        }
+        catch (Exception e) {
             System.out.println("Wpisz poprawną cyfrę!");
         }
     }
