@@ -4,6 +4,7 @@ import org.example.models.*;
 import org.example.repositories.*;
 import org.example.services.*;
 
+import java.sql.SQLException;
 import java.time.LocalDateTime;
 import java.util.*;
 
@@ -29,30 +30,38 @@ public class UIForUser {
 
     public void start() {
         while (true) {
-            System.out.println("\n-- WYPOŻYCZALNIA --");
-            System.out.println("1. Logowanie\n2. Rejestracja\n3. Wyjdź");
-            String input = scanner.nextLine();
-            if (input.equals("1")) loginMenu();
-            else if (input.equals("2")) registerMenu();
-            else if (input.equals("3")) break;
+            try {
+                System.out.println("\n-- WYPOŻYCZALNIA --");
+                System.out.println("1. Logowanie\n2. Rejestracja\n3. Wyjdź");
+                String input = scanner.nextLine();
+                if (input.equals("1")) loginMenu();
+                else if (input.equals("2")) registerMenu();
+                else if (input.equals("3")) break;
+            }catch (RuntimeException e){
+                System.out.println("Błąd przy łączeniu z bazą danych "+ e.getMessage());
+            }
         }
     }
 
     private void loginMenu() {
-        System.out.print("Login: ");
-        String login = scanner.nextLine();
-        System.out.print("Hasło: ");
-        String password = scanner.nextLine();
+        try {
+            System.out.print("Login: ");
+            String login = scanner.nextLine();
+            System.out.print("Hasło: ");
+            String password = scanner.nextLine();
 
-        authService.login(login, password).ifPresentOrElse(u -> {
-            this.currentUser = u;
-            System.out.println("Zalogowano jako: " + u.getRole());
-            if (u.getRole() == Role.ADMIN) {
-                while (adminMenu()) ;
-            } else {
-                while (userMenu()) ;
-            }
-        }, () -> System.out.println("Błędne dane logowania!"));
+            authService.login(login, password).ifPresentOrElse(u -> {
+                this.currentUser = u;
+                System.out.println("Zalogowano jako: " + u.getRole());
+                if (u.getRole() == Role.ADMIN) {
+                    while (adminMenu()) ;
+                } else {
+                    while (userMenu()) ;
+                }
+            }, () -> System.out.println("Błędne dane logowania!"));
+        }catch (RuntimeException e){
+            System.out.println("Nie udało się połączyć"+ e.getMessage());
+        }
     }
 
     private void registerMenu() {
@@ -254,9 +263,11 @@ public class UIForUser {
 
                 rentalService.rentVehicle(currentUser.getId(), selected.getId());
             System.out.println("Wypożyczono: " + selected.getBrand());
-        }catch (RuntimeException e){
+        }
+        catch (RuntimeException e){
             System.out.println(e.getMessage());
         }
+
         catch (Exception e) {
             System.out.println("Wpisz poprawną cyfrę!");
         }
