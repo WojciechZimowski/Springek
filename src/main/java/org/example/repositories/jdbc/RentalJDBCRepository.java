@@ -17,7 +17,7 @@ public class RentalJDBCRepository implements RentalRepository {
     @Override
     public List<Rental> findAll() {
         List<Rental> rentals = new ArrayList<>();
-        String sql =  "SELECT * FROM rentals";
+        String sql =  "SELECT * FROM rental";
         try(Connection connection = JdbcConnectionManager.getInstance().getConnection();
             PreparedStatement stmt = connection.prepareStatement(sql);
             ResultSet rs = stmt.executeQuery()
@@ -29,6 +29,7 @@ public class RentalJDBCRepository implements RentalRepository {
          catch (SQLException e) {
             throw new RuntimeException(e);
         }
+
         return rentals;
     }
 

@@ -20,7 +20,7 @@ public class VehicleJDBCRepository implements IVehicleRepository {
     @Override
     public List<Vehicle> findAll() {
         List<Vehicle> vehicles = new ArrayList<>();
-        String sql = "SELECT * FROM vehicles";
+        String sql = "SELECT * FROM vehicle";
         try(Connection conn = JdbcConnectionManager.getInstance().getConnection();
             PreparedStatement stmt = conn.prepareStatement(sql);
             ResultSet rs = stmt.executeQuery()){
