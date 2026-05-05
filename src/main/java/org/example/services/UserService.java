@@ -1,16 +1,18 @@
 package org.example.services;
 
 import org.example.models.User;
+import org.example.repositories.IUserRepository;
+import org.example.repositories.RentalRepository;
 import org.example.repositories.impl.RentalJsonRepository;
 import org.example.repositories.impl.UserJsonRepository;
 
 import java.util.List;
 
 public class UserService {
-    private final UserJsonRepository userJsonRepository;
-    private final RentalJsonRepository rentalJsonRepository;
+    private final IUserRepository userJsonRepository;
+    private final RentalRepository rentalJsonRepository;
 
-    public UserService(UserJsonRepository userJsonRepository, RentalJsonRepository rentalJsonRepository) {
+    public UserService(IUserRepository userJsonRepository, RentalRepository rentalJsonRepository) {
         this.userJsonRepository = userJsonRepository;
         this.rentalJsonRepository = rentalJsonRepository;
     }

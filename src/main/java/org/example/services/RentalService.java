@@ -9,9 +9,9 @@ import java.util.List;
 import java.util.UUID;
 
 public class RentalService {
-    private final RentalJsonRepository rentalJsonRepository;
+    private final RentalRepository rentalJsonRepository;
 
-    public RentalService(RentalJsonRepository rentalJsonRepository) {
+    public RentalService(RentalRepository rentalJsonRepository) {
         this.rentalJsonRepository = rentalJsonRepository;
     }
 

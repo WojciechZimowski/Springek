@@ -1,16 +1,18 @@
 package org.example.services;
 
 import org.example.models.Vehicle;
+import org.example.repositories.IVehicleRepository;
+import org.example.repositories.RentalRepository;
 import org.example.repositories.impl.RentalJsonRepository;
 import org.example.repositories.impl.VehicleJsonRepository;
 
 import java.util.List;
 
 public class VehicleService {
-    private final VehicleJsonRepository vehicleRepository;
-    private final RentalJsonRepository rentalRepository;
+    private final IVehicleRepository vehicleRepository;
+    private final RentalRepository rentalRepository;
     private final VehicleValidator vehicleValidator;
-    public VehicleService(VehicleJsonRepository vehicleRepository, RentalJsonRepository rentalRepository, VehicleValidator vehicleValidator) {
+    public VehicleService(IVehicleRepository vehicleRepository, RentalRepository rentalRepository, VehicleValidator vehicleValidator) {
         this.vehicleRepository = vehicleRepository;
         this.rentalRepository = rentalRepository;
         this.vehicleValidator = vehicleValidator;

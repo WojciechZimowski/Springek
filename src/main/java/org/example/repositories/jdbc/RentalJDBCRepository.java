@@ -73,7 +73,7 @@ public class RentalJDBCRepository implements RentalRepository {
 
     @Override
     public void deleteById(String id) {
-        String sql =  "DELETE FROM rentals Where id = ?";
+        String sql =  "DELETE FROM rental Where id = ?";
         try(Connection conn =JdbcConnectionManager.getInstance().getConnection();
             PreparedStatement stmt  = conn.prepareStatement(sql)){
             stmt.setString(1,id);
@@ -85,7 +85,7 @@ public class RentalJDBCRepository implements RentalRepository {
 
     @Override
     public Optional<Rental> findByVehicleIdAndReturnDateIsNull(String vehicleId) {
-        String sql =  "SELECT * FROM rentals Where vehicle_id = ? AND return_date IS NULL";
+        String sql =  "SELECT * FROM rental Where vehicle_id = ? AND return_date IS NULL";
         try(Connection conn =JdbcConnectionManager.getInstance().getConnection();
             PreparedStatement stmt  = conn.prepareStatement(sql)){
             stmt.setString(1,vehicleId);
