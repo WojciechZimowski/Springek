@@ -67,10 +67,11 @@ public class VehicleJDBCRepository implements IVehicleRepository {
             stmt.setInt(5,vehicle.getYear());
             stmt.setString(6,vehicle.getPlate());
             stmt.setDouble(7,vehicle.getPrice());
-            stmt.setString(8,gson.toJson(vehicle.getAttributes()));
+            stmt.setObject(8, gson.toJson(vehicle.getAttributes()), java.sql.Types.OTHER);
             stmt.executeUpdate();
             return vehicle;
         } catch (SQLException e) {
+            
             throw new RuntimeException(e);
         }
     }

@@ -35,7 +35,7 @@ public class RentalJDBCRepository implements RentalRepository {
 
     @Override
     public Optional<Rental> findById(String id) {
-        String sql =  "SELECT * FROM rentals Where id = ?";
+        String sql =  "SELECT * FROM rental Where id = ?";
         try(Connection connection = JdbcConnectionManager.getInstance().getConnection();
             PreparedStatement stmt = connection.prepareStatement(sql);
 
@@ -78,7 +78,7 @@ public class RentalJDBCRepository implements RentalRepository {
         try(Connection conn =JdbcConnectionManager.getInstance().getConnection();
             PreparedStatement stmt  = conn.prepareStatement(sql)){
             stmt.setString(1,id);
-            stmt.executeQuery();
+            stmt.executeUpdate();
         }catch (SQLException e){
             throw new RuntimeException(e);
         }
