@@ -1,30 +1,47 @@
 package org.example.models;
 
+import io.hypersistence.utils.hibernate.type.json.JsonBinaryType;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
+import org.hibernate.annotations.Type;
 
 import java.io.Serializable;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
-
+@Entity
 @Getter
 @Setter
 @Builder
-public  class Vehicle implements Serializable {
-
+@NoArgsConstructor
+@EqualsAndHashCode(of="id")
+@ToString
+@Table(name="vehicle")
+public  class Vehicle {
+    @Id
+    @Column(nullable=false,unique=true)
     private String id;
+
     private String category;
     private String brand;
     private String model;
     private Integer year;
     private String plate;
+    @Column(columnDefinition = "NUMERIC")
     private Double price;//warto zrobic klase do waluty
 
+    @Type(JsonBinaryType.class)
+    @Column(columnDefinition = "jsonb")
+    @Getter(AccessLevel.NONE)
+    @Setter(AccessLevel.NONE)
+    private Map<String,Object> attributes= new HashMap<>();
 
-    private Map<String,Object> attributes;
-
+    @Builder
     public Vehicle(  String id,String category,String brand, String model, Integer year,String plate, Double price, Map<String,Object> attributes) {
         this.id = id;
         this.category = category;
@@ -32,6 +49,8 @@ public  class Vehicle implements Serializable {
         this.model = model;
         this.year = year;
         this.plate = plate;
+
+
         this.price = price;
         this.attributes = attributes!=null?new HashMap<>(attributes):new HashMap<>();
 
@@ -73,16 +92,7 @@ public  class Vehicle implements Serializable {
         }
     }
 
-    @Override
-    public String toString() {
-       StringBuilder builder = new StringBuilder();
-       builder.append(String.format("ID: %s | [%s] %s %s (%d) | Rejestracja: %s| Cena: %.2f zł",
-               id, category, brand, model, year, plate, price));
-       if(attributes!=null && !attributes.isEmpty()) {
-           builder.append("|Dodatki:").append(attributes);
-       }
-       return builder.toString();
-    }
+
 
 
 }
