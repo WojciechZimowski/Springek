@@ -1,10 +1,8 @@
 package org.example;
 
 import org.example.models.*;
-import org.example.repositories.*;
-import org.example.services.*;
+import org.example.services.impl.*;
 
-import java.sql.SQLException;
 import java.time.LocalDateTime;
 import java.util.*;
 

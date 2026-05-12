@@ -1,14 +1,15 @@
-package org.example.services;
+package org.example.services.impl;
 
 import org.example.models.Role;
 import org.example.models.User;
 import org.example.repositories.IUserRepository;
+import org.example.services.AuthServiceInterface;
 import org.mindrot.jbcrypt.BCrypt;
 
 import java.util.Optional;
 import java.util.UUID;
 
-public class AuthService {
+public class AuthService implements AuthServiceInterface {
     private final IUserRepository userRepo;
 
     public AuthService(IUserRepository userRepo) {

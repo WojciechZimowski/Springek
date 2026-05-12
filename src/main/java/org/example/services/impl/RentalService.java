@@ -1,22 +1,29 @@
-package org.example.services;
+package org.example.services.impl;
 
 import org.example.models.Rental;
+import org.example.repositories.IUserRepository;
+import org.example.repositories.IVehicleRepository;
 import org.example.repositories.RentalRepository;
-import org.example.repositories.impl.RentalJsonRepository;
+import org.example.services.RentalServiceInterface;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
-public class RentalService {
+public class RentalService implements RentalServiceInterface {
     private final RentalRepository rentalJsonRepository;
+    private final IUserRepository userRepository;
+    private final IVehicleRepository vehicleRepository;
 
-    public RentalService(RentalRepository rentalJsonRepository) {
+    public RentalService(RentalRepository rentalJsonRepository, IUserRepository userRepository, IVehicleRepository vehicleRepository) {
         this.rentalJsonRepository = rentalJsonRepository;
+        this.userRepository = userRepository;
+        this.vehicleRepository = vehicleRepository;
     }
 
-    public void rentVehicle(String uId, String vId) {
-        if (rentalJsonRepository.findByVehicleIdAndReturnDateIsNull(vId).isPresent()) {
+    public Rental rentVehicle(String uId, String vId) {
+        if(vehicleHasActiveRental(vId)){
             throw new RuntimeException("Pojazd jest już wypożyczony.");
         }
 
@@ -35,6 +42,32 @@ public class RentalService {
             rentalJsonRepository.save(r);
         }, () -> { throw new RuntimeException("Nie znaleziono aktywnego wypożyczenia dla tego auta."); });
     }
+
+    @Override
+    public Optional<Rental> findActiveRentalByUserId(String userId) {
+        return Optional.empty();
+    }
+
+    @Override
+    public List<Rental> findAllRentals() {
+        return List.of();
+    }
+
+    @Override
+    public List<Rental> findUserRentals(String userId) {
+        return List.of();
+    }
+
+    @Override
+    public boolean userHasActiveRental(String userId) {
+        return false;
+    }
+
+    @Override
+    public boolean vehicleHasActiveRental(String vehicleId) {
+        return false;
+    }
+
     public boolean isVehicleRented(String vId) {
         return rentalJsonRepository.findByVehicleIdAndReturnDateIsNull(vId).isPresent();
     }

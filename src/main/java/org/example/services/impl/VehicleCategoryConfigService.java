@@ -1,4 +1,4 @@
-package org.example.services;
+package org.example.services.impl;
 
 import org.example.models.VehicleCategoryConfig;
 import org.example.repositories.VehicleCategoryConfigRepository;

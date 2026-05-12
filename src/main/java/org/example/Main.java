@@ -6,7 +6,7 @@ import org.example.models.*;
 import org.example.repositories.*;
 import org.example.repositories.impl.*;
 import org.example.repositories.jdbc.*;
-import org.example.services.*;
+import org.example.services.impl.*;
 
 
 import java.lang.reflect.Type;

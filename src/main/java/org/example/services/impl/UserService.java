@@ -1,14 +1,13 @@
-package org.example.services;
+package org.example.services.impl;
 
 import org.example.models.User;
 import org.example.repositories.IUserRepository;
 import org.example.repositories.RentalRepository;
-import org.example.repositories.impl.RentalJsonRepository;
-import org.example.repositories.impl.UserJsonRepository;
+import org.example.services.UserServiceInterface;
 
 import java.util.List;
 
-public class UserService {
+public class UserService implements UserServiceInterface {
     private final IUserRepository userJsonRepository;
     private final RentalRepository rentalJsonRepository;
 
@@ -29,6 +28,17 @@ public class UserService {
     }
 
     public List<User> findAllUsers() { return userJsonRepository.findAll(); }
+
+    @Override
+    public User findById(String id) {
+        return null;
+    }
+
+    @Override
+    public void deleteUser(String id, String loggedUserId) {
+
+    }
+
     public User findUserByLogin(String login) {
         return userJsonRepository.findByLogin(login)
                 .orElseThrow(() -> new RuntimeException("Użytkownik nie istnieje w bazie."));

@@ -1,14 +1,14 @@
-package org.example.services;
+package org.example.services.impl;
 
 import org.example.models.Vehicle;
 import org.example.repositories.IVehicleRepository;
 import org.example.repositories.RentalRepository;
-import org.example.repositories.impl.RentalJsonRepository;
-import org.example.repositories.impl.VehicleJsonRepository;
+import org.example.services.RentalServiceInterface;
+import org.example.services.VehicleServiceInterface;
 
 import java.util.List;
 
-public class VehicleService {
+public class VehicleService implements VehicleServiceInterface {
     private final IVehicleRepository vehicleRepository;
     private final RentalRepository rentalRepository;
     private final VehicleValidator vehicleValidator;
@@ -31,6 +31,12 @@ public class VehicleService {
         }
         vehicleRepository.deleteById(id);
     }
+
+    @Override
+    public boolean isVehicleRented(String vehicleId) {
+        return false;
+    }
+
     public Vehicle findVehicleById(String id) {
         return vehicleRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Nie znaleziono pojazdu o ID: " + id));
@@ -41,6 +47,10 @@ public class VehicleService {
                 .toList();
     }
 
+    @Override
+    public Vehicle findById(String id) {
+        return null;
+    }
 
 
 }
