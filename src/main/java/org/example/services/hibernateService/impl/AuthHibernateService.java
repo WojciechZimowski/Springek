@@ -15,4 +15,6 @@ public class AuthHibernateService implements AuthServiceInterface {
     public Optional<User> login(String login, String rawPassword) {
         return Optional.empty();
     }
+//ee
 }
+
