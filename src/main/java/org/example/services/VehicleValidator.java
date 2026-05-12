@@ -13,11 +13,17 @@ public class VehicleValidator {
     }
 
     public void validate(Vehicle vehicle) {
-
+        if(vehicle.getModel()==null || vehicle.getModel().equals("")){
+            throw new RuntimeException("Model nie może być pusta!");
+        }
         if (vehicle.getBrand() == null || vehicle.getBrand().isBlank())
             throw new RuntimeException("Marka nie może być pusta!");
+
         if(!configService.categoryExists(vehicle.getCategory())){
             throw new RuntimeException("BŁĄD: Kategoria "+vehicle.getCategory()+" Nie istnieje");
+        }
+        if(vehicle.getYear()<1900){
+            throw new RuntimeException("Zły rok");
         }
 
 

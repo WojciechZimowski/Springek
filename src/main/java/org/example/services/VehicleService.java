@@ -18,6 +18,7 @@ public class VehicleService {
         this.vehicleValidator = vehicleValidator;
     }
     public void addVehicle(Vehicle vehicle) {
+
         vehicleValidator.validate(vehicle);
         vehicleRepository.save(vehicle);
 
