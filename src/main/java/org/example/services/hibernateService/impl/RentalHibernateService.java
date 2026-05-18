@@ -15,6 +15,7 @@ import org.hibernate.Transaction;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 public class RentalHibernateService implements RentalServiceInterface {
     private final RentalHibernateRepository rentalRepository;
@@ -50,6 +51,19 @@ public class RentalHibernateService implements RentalServiceInterface {
                 throw new IllegalStateException("Ten pojazd jest już wypożyczony");
 
             }
+            Rental rental = Rental.builder()
+                    .id(UUID.randomUUID().toString())
+                    .user(user)
+                    .vehicle(vehicle)
+                    .rentDateTime(LocalDateTime.now().toString())
+                    .build();
+
+            Rental savedRental = rentalRepository.save(rental);
+            tx.commit();
+            return savedRental;
+        } catch (RuntimeException e) {
+            rollback(tx);
+            throw e;
         }
     }
 

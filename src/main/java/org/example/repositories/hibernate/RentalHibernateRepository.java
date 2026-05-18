@@ -2,6 +2,7 @@ package org.example.repositories.hibernate;
 
 import org.example.models.Rental;
 import org.example.repositories.RentalRepository;
+import org.hibernate.Session;
 
 import java.util.List;
 import java.util.Optional;
@@ -30,5 +31,8 @@ public class RentalHibernateRepository implements RentalRepository {
     @Override
     public Optional<Rental> findByVehicleIdAndReturnDateIsNull(String vehicleId) {
         return Optional.empty();
+    }
+
+    public void setSession(Session session) {
     }
 }
