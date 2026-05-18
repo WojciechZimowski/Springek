@@ -24,9 +24,12 @@ public class VehicleHibernateService implements VehicleServiceInterface {
     @Override
     public List<Vehicle> findAllVehicles() {
         try(Session session = HibernateConfig.getSessionFactory().openSession()) {
-            vehicleRepository.setSession(session);
-            return vehicleRepository.findAll();
+            return session.createQuery(
+                            "FROM Vehicle v WHERE v.id NOT IN " +
+                                    "(SELECT r.vehicle.id FROM Rental r WHERE r.returnDateTime IS NULL)", Vehicle.class)
+                    .getResultList();
         }
+
     }
 
     @Override

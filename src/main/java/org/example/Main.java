@@ -19,6 +19,7 @@ import org.example.services.hibernateService.impl.RentalHibernateService;
 import org.example.services.hibernateService.impl.UserHibernateService;
 import org.example.services.hibernateService.impl.VehicleHibernateService;
 
+
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 

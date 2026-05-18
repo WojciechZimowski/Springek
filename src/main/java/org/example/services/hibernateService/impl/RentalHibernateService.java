@@ -4,7 +4,6 @@ import org.example.db.HibernateConfig;
 import org.example.models.Rental;
 import org.example.models.User;
 import org.example.models.Vehicle;
-import org.example.repositories.RentalRepository;
 import org.example.repositories.hibernate.RentalHibernateRepository;
 import org.example.repositories.hibernate.UserHibernateRepository;
 import org.example.repositories.hibernate.VehicleHibernateRepository;
@@ -22,12 +21,13 @@ public class RentalHibernateService implements RentalServiceInterface {
     private final VehicleHibernateRepository vehicleRepository;
     private final UserHibernateRepository userRepository;
 
-    public RentalHibernateService(RentalHibernateRepository rentalRepository, VehicleHibernateRepository vehicleHibernateService, UserHibernateRepository userHibernateService) {
+    public RentalHibernateService(RentalHibernateRepository rentalRepository,
+                                  VehicleHibernateRepository vehicleHibernateService,
+                                  UserHibernateRepository userHibernateService) {
         this.rentalRepository = rentalRepository;
         this.vehicleRepository = vehicleHibernateService;
         this.userRepository = userHibernateService;
     }
-
 
     @Override
     public Rental rentVehicle(String userId, String vehicleId) {
@@ -35,22 +35,35 @@ public class RentalHibernateService implements RentalServiceInterface {
         try (Session session = HibernateConfig.getSessionFactory().openSession()) {
             tx = session.beginTransaction();
 
-            setSession(session);
 
-            boolean userHasActivRental = rentalRepository.findAll().stream()
-                    .anyMatch(r -> userId.equals(r.getUserId()) && r.isActive());
-            if (userHasActivRental) {
-                throw new IllegalStateException("Masz już aktywne wypożyczenie");
+            Optional<Rental> activeUserRental = session.createQuery(
+                            "FROM Rental r WHERE r.user.id = :uId AND r.returnDateTime IS NULL", Rental.class)
+                    .setParameter("uId", userId)
+                    .uniqueResultOptional();
+
+            if (activeUserRental.isPresent()) {
+                throw new IllegalStateException("Masz już aktywne wypożyczenie!");
             }
-            Vehicle vehicle = vehicleRepository.findById(vehicleId)
-                    .orElseThrow(() -> new IllegalArgumentException("Nie znaleziono pojazdu"));
-            User user = userRepository.findById(userId).orElseThrow(() -> new IllegalArgumentException("Nie znaleziono użytkownika"));
 
-            boolean vehicleIsRented = rentalRepository.findByVehicleIdAndReturnDateIsNull(vehicle.getId()).isPresent();
-            if (vehicleIsRented) {
-                throw new IllegalStateException("Ten pojazd jest już wypożyczony");
-
+            Vehicle vehicle = session.get(Vehicle.class, vehicleId);
+            if (vehicle == null) {
+                throw new IllegalArgumentException("Nie znaleziono pojazdu o podanym ID");
             }
+
+            User user = session.get(User.class, userId);
+            if (user == null) {
+                throw new IllegalArgumentException("Nie znaleziono użytkownika o podanym ID");
+            }
+
+            Optional<Rental> activeVehicleRental = session.createQuery(
+                            "FROM Rental r WHERE r.vehicle.id = :vId AND r.returnDateTime IS NULL", Rental.class)
+                    .setParameter("vId", vehicleId)
+                    .uniqueResultOptional();
+
+            if (activeVehicleRental.isPresent()) {
+                throw new IllegalStateException("Ten pojazd jest już wypożyczony przez kogoś innego!");
+            }
+
             Rental rental = Rental.builder()
                     .id(UUID.randomUUID().toString())
                     .user(user)
@@ -58,15 +71,17 @@ public class RentalHibernateService implements RentalServiceInterface {
                     .rentDateTime(LocalDateTime.now().toString())
                     .build();
 
-            Rental savedRental = rentalRepository.save(rental);
+            session.persist(rental);
+
             tx.commit();
-            return savedRental;
+            return rental;
         } catch (RuntimeException e) {
-            rollback(tx);
+            if (tx != null && tx.isActive()) {
+                tx.rollback();
+            }
             throw e;
         }
     }
-
 
     @Override
     public Rental returnVehicle(String userId) {
@@ -74,17 +89,21 @@ public class RentalHibernateService implements RentalServiceInterface {
         try (Session session = HibernateConfig.getSessionFactory().openSession()) {
             tx = session.beginTransaction();
 
-            setSession(session);
-            Rental rental = rentalRepository.findAll().stream()
-                    .filter(r -> userId.equals(r.getUserId()))
-                    .filter(Rental::isActive)
-                    .findFirst().orElseThrow(() -> new IllegalArgumentException("Nie masz aktualnie żadnego pojazdu"));
+            Rental rental = session.createQuery(
+                            "FROM Rental r WHERE r.user.id = :uId AND r.returnDateTime IS NULL", Rental.class)
+                    .setParameter("uId", userId)
+                    .uniqueResultOptional()
+                    .orElseThrow(() -> new IllegalArgumentException("Nie masz aktualnie żadnego wypożyczonego pojazdu"));
+
             rental.setReturnDateTime(LocalDateTime.now().toString());
-            Rental savedRental = rentalRepository.save(rental);
+
+            session.merge(rental);
             tx.commit();
-            return savedRental;
+            return rental;
         } catch (RuntimeException e) {
-            rollback(tx);
+            if (tx != null && tx.isActive()) {
+                tx.rollback();
+            }
             throw e;
         }
     }
@@ -92,26 +111,27 @@ public class RentalHibernateService implements RentalServiceInterface {
     @Override
     public Optional<Rental> findActiveRentalByUserId(String userId) {
         try (Session session = HibernateConfig.getSessionFactory().openSession()) {
-            setSession(session);
-            return rentalRepository.findAll().stream()
-                    .filter(r -> userId.equals(r.getUserId())).filter(Rental::isActive).findFirst();
+            return session.createQuery(
+                            "FROM Rental r WHERE r.user.id = :uId AND r.returnDateTime IS NULL", Rental.class)
+                    .setParameter("uId", userId)
+                    .uniqueResultOptional();
         }
     }
 
     @Override
     public List<Rental> findAllRentals() {
         try (Session session = HibernateConfig.getSessionFactory().openSession()) {
-            setSession(session);
-            return rentalRepository.findAll();
+            return session.createQuery("FROM Rental", Rental.class).getResultList();
         }
     }
 
     @Override
     public List<Rental> findUserRentals(String userId) {
         try (Session session = HibernateConfig.getSessionFactory().openSession()) {
-            setSession(session);
-            return rentalRepository.findAll().stream()
-                    .filter(r -> userId.equals(r.getUserId())).toList();
+            return session.createQuery(
+                            "FROM Rental r WHERE r.user.id = :uId", Rental.class)
+                    .setParameter("uId", userId)
+                    .getResultList();
         }
     }
 
@@ -123,8 +143,11 @@ public class RentalHibernateService implements RentalServiceInterface {
     @Override
     public boolean vehicleHasActiveRental(String vehicleId) {
         try (Session session = HibernateConfig.getSessionFactory().openSession()) {
-            setSession(session);
-            return rentalRepository.findByVehicleIdAndReturnDateIsNull(vehicleId).isPresent();
+            Optional<Rental> active = session.createQuery(
+                            "FROM Rental r WHERE r.vehicle.id = :vId AND r.returnDateTime IS NULL", Rental.class)
+                    .setParameter("vId", vehicleId)
+                    .uniqueResultOptional();
+            return active.isPresent();
         }
     }
 
@@ -132,11 +155,5 @@ public class RentalHibernateService implements RentalServiceInterface {
         rentalRepository.setSession(session);
         vehicleRepository.setSession(session);
         userRepository.setSession(session);
-
-    }
-    private void rollback(Transaction tx) {
-        if(tx!=null && tx.isActive()){
-            tx.rollback();
-        }
     }
 }
