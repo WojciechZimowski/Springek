@@ -1,8 +1,9 @@
-package org.example.services;
+package org.example.services.jdbcService;
 
 import org.example.models.Vehicle;
 import org.example.repositories.IVehicleRepository;
 import org.example.repositories.RentalRepository;
+import org.example.services.VehicleValidator;
 
 import java.util.List;
 

@@ -1,4 +1,4 @@
-package org.example.services;
+package org.example.services.jdbcService;
 
 import org.example.models.Role;
 import org.example.models.User;

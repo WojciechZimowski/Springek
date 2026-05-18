@@ -1,10 +1,8 @@
-package org.example.services;
+package org.example.services.jdbcService;
 
 import org.example.models.User;
 import org.example.repositories.IUserRepository;
 import org.example.repositories.RentalRepository;
-import org.example.repositories.impl.RentalJsonRepository;
-import org.example.repositories.impl.UserJsonRepository;
 
 import java.util.List;
 

@@ -1,8 +1,7 @@
-package org.example.services;
+package org.example.services.jdbcService;
 
 import org.example.models.Rental;
 import org.example.repositories.RentalRepository;
-import org.example.repositories.impl.RentalJsonRepository;
 
 import java.time.LocalDateTime;
 import java.util.List;

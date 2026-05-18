@@ -2,26 +2,32 @@ package org.example;
 
 import org.example.models.*;
 import org.example.services.*;
+import org.example.services.hibernateService.AuthServiceInterface;
+import org.example.services.hibernateService.RentalServiceInterface;
+import org.example.services.hibernateService.UserServiceInterface;
+import org.example.services.hibernateService.VehicleServiceInterface;
 
 import java.time.LocalDateTime;
 import java.util.*;
 
 public class UIForUser {
-    private final VehicleService vehicleService;
-    private final UserService userService;
-    private final RentalService rentalService;
+    private final VehicleServiceInterface vehicleService;
+    private final UserServiceInterface userService;
+    private final RentalServiceInterface rentalService;
     private final VehicleCategoryConfigService configService;
-    private final AuthService authService;
+    private final AuthServiceInterface authService;
     private final Scanner scanner;
     private User currentUser;
 
 
-    public UIForUser(VehicleService vehicleService, UserService userService, RentalService rentalService, VehicleCategoryConfigService configService, AuthService authService) {
-        this.vehicleService = vehicleService;
-        this.userService = userService;
-        this.rentalService = rentalService;
+    public UIForUser(VehicleCategoryConfigService configService, VehicleServiceInterface vehicleService1, UserServiceInterface userService1, RentalServiceInterface rentalService1, AuthServiceInterface authService1) {
+
         this.configService = configService;
-        this.authService = authService;
+        this.vehicleService = vehicleService1;
+        this.userService = userService1;
+        this.rentalService = rentalService1;
+        this.authService = authService1;
+
         this.scanner = new Scanner(System.in);
     }
 
@@ -109,7 +115,7 @@ public class UIForUser {
 
     private void showAllVehiclesWithStatus() {
         vehicleService.findAllVehicles().forEach(v -> {
-            boolean isRented = rentalService.isVehicleRented(v.getId());
+            boolean isRented = rentalService.vehicleHasActiveRental(v.getId());
             System.out.println(v + (isRented ? " [WYPOŻYCZONY]" : " [WOLNY]"));
         });
 
@@ -220,7 +226,7 @@ public class UIForUser {
                 return;
             }
 
-            userService.deleteUser(selectedUser.getId());
+            userService.deleteUser(selectedUser.getId(),currentUser.getId());
             System.out.println("Użytkownik " + selectedUser.getLogin() + " został usunięty.");
         } catch (NumberFormatException e) {
             System.out.println("Błąd: Wpisz cyfrę!");
@@ -252,74 +258,58 @@ public class UIForUser {
             }
 
             Vehicle selected = available.get(index);
-            Rental r = Rental.builder()
-                    .id(UUID.randomUUID().toString())
-                    .vehicleId(selected.getId())
-                    .userId(currentUser.getId())
-                    .rentDateTime(LocalDateTime.now().toString())
-                    .build();
+            rentalService.rentVehicle(currentUser.getId(), selected.getId());
 
-                rentalService.rentVehicle(currentUser.getId(), selected.getId());
             System.out.println("Wypożyczono: " + selected.getBrand());
-        }
-        catch (RuntimeException e){
-            System.out.println(e.getMessage());
-        }
-
-        catch (Exception e) {
+        } catch (RuntimeException e) {
+            System.err.println("Błąd wypożyczenia: " + e.getMessage());
+        } catch (Exception e) {
             System.out.println("Wpisz poprawną cyfrę!");
         }
     }
 
     private void returnVehicle() {
 
-        List<Rental> myActiveRentals = rentalService.findActiveRentalsByUser(currentUser.getId());
+        Optional<Rental> myActiveRentals = rentalService.findActiveRentalByUserId(currentUser.getId());
 
         if (myActiveRentals.isEmpty()) {
             System.out.println("Nie masz obecnie żadnych wypożyczonych pojazdów.");
             return;
         }
 //url ma być zmienną srodowiskow,ą
-
+        Rental rental = myActiveRentals.get();
+        Vehicle v = rental.getVehicle();
         System.out.println("\n--- TWOJE WYPOŻYCZENIA ---");
-        for (int i = 0; i < myActiveRentals.size(); i++) {
-            Rental r = myActiveRentals.get(i);
-
-            Vehicle v = vehicleService.findVehicleById(r.getVehicleId());
-
-            System.out.println((i + 1) + ". " + v.getBrand() + " (Data: " + r.getRentDateTime() + ")");
-        }
 
 //huh
-        System.out.print("\nWybierz numer auta do zwrotu (lub 0 aby anulować): ");
+        System.out.println("1. " + v.getBrand() + " " + v.getModel() + " (Wypożyczono: " + rental.getRentDateTime() + ")");
+        System.out.print("\nCzy chcesz zwrócić ten pojazd? (Wpisz 1 aby potwierdzić, 0 aby anulować): ");
+
         try {
-            int choice = Integer.parseInt(scanner.nextLine());
-            if (choice == 0) return;
-            if (choice < 1 || choice > myActiveRentals.size()) {
-                System.out.println("Nieprawidłowy numer!");
-                return;
+            String choice = scanner.nextLine();
+            if (choice.equals("1")) {
+                rentalService.returnVehicle(currentUser.getId());
+                System.out.println("Pojazd został pomyślnie zwrócony!");
+            } else {
+                System.out.println("Anulowano zwrot.");
             }
-
-
-            Rental selectedRental = myActiveRentals.get(choice - 1);
-            selectedRental.setReturnDateTime(LocalDateTime.now().toString());
-
-            rentalService.returnVehicle(selectedRental.getVehicleId());
-            System.out.println("Pojazd został pomyślnie zwrócony!");
-
-        } catch (NumberFormatException e) {
-            System.out.println("Błąd: Wpisz poprawną cyfrę!");
+        } catch (RuntimeException e) {
+            System.err.println("Błąd zwrotu: " + e.getMessage());
         }
     }
+
+
+
+
 
     private void showMyData() {
         System.out.println("Zalogowany jako: " + currentUser.getLogin());
         System.out.println("Twoje aktywne wypożyczenia:");
 
-        rentalService.findActiveRentalsByUser(currentUser.getId()).forEach(r -> {
-            Vehicle v = vehicleService.findVehicleById(r.getVehicleId());
-            System.out.println("- " + v);
-        });
+        rentalService.findActiveRentalByUserId(currentUser.getId()).ifPresentOrElse(
+                r -> System.out.println("- " + r.getVehicle()),
+                () -> System.out.println("  (Brak aktywnych wypożyczeń)")
+        );
     }
 
     private void showAllUsersAndRentals() {
@@ -327,13 +317,13 @@ public class UIForUser {
             System.out.println("\nUżytkownik: " + u.getLogin() + " [" + u.getRole() + "]");
 
 
-            List<Rental> userRentals = rentalService.findAllRentalsByUserId(u.getId());
+           List<Rental> userRentals = rentalService.findUserRentals(u.getId());
 
             if (userRentals.isEmpty()) {
                 System.out.println("  (Brak historii wypożyczeń)");
             } else {
                 userRentals.forEach(r -> {
-                    Vehicle v = vehicleService.findVehicleById(r.getVehicleId());
+                    Vehicle v = r.getVehicle(); // Bezpośrednio pobieramy obiekt z encji
                     String status = r.isActive() ? "[W TRAKCIE]" : "[ZWRÓCONO]";
                     System.out.println("  -> " + v.getBrand() + " " + v.getModel() + " | " + status);
                 });
