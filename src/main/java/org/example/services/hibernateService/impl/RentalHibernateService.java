@@ -44,7 +44,7 @@ public class RentalHibernateService implements RentalServiceInterface {
             }
             Vehicle vehicle = vehicleRepository.findById(vehicleId)
                     .orElseThrow(() -> new IllegalArgumentException("Nie znaleziono pojazdu"));
-            User user = userRepository.findById(userId).orElseThrow(() -> new IllegalArgumentException(ytkownika));
+            User user = userRepository.findById(userId).orElseThrow(() -> new IllegalArgumentException("Nie znaleziono użytkownika"));
 
             boolean vehicleIsRented = rentalRepository.findByVehicleIdAndReturnDateIsNull(vehicle.getId()).isPresent();
             if (vehicleIsRented) {

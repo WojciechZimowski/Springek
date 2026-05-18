@@ -1,10 +1,7 @@
 package org.example;
 
 import org.example.models.*;
-import org.example.services.AuthService;
-import org.example.services.RentalService;
-import org.example.services.UserService;
-import org.example.services.VehicleCategoryConfigService;
+import org.example.services.*;
 
 import java.time.LocalDateTime;
 import java.util.*;

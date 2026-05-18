@@ -1,38 +1,95 @@
 package org.example.services.hibernateService.impl;
 
+import org.example.db.HibernateConfig;
 import org.example.models.Vehicle;
+import org.example.repositories.RentalRepository;
+import org.example.repositories.hibernate.RentalHibernateRepository;
+import org.example.repositories.hibernate.VehicleHibernateRepository;
 import org.example.services.hibernateService.VehicleServiceInterface;
+import org.hibernate.Session;
+import org.hibernate.SessionFactory;
+import org.hibernate.Transaction;
 
 import java.util.List;
 
 public class VehicleHibernateService implements VehicleServiceInterface {
+    private final VehicleHibernateRepository vehicleRepository;
+    private final RentalHibernateRepository rentalRepository;
+
+    public VehicleHibernateService(VehicleHibernateRepository vehicleRepository, RentalHibernateRepository rentalRepository) {
+        this.vehicleRepository = vehicleRepository;
+        this.rentalRepository = rentalRepository;
+    }
+
     @Override
     public List<Vehicle> findAllVehicles() {
-        return List.of();
+        try(Session session = HibernateConfig.getSessionFactory().openSession()) {
+            vehicleRepository.setSession(session);
+            return vehicleRepository.findAll();
+        }
     }
 
     @Override
     public List<Vehicle> findAvailableVehicles() {
-        return List.of();
+        try (Session session = HibernateConfig.getSessionFactory().openSession()) {
+            vehicleRepository.setSession(session);
+            rentalRepository.setSession(session);
+            return vehicleRepository.findAll().stream()
+                    .filter(v -> rentalRepository.findByVehicleIdAndReturnDateIsNull(v.getId()).isEmpty())
+                    .toList();
+        }
+
     }
 
     @Override
     public Vehicle findById(String id) {
-        return null;
+        try(Session session = HibernateConfig.getSessionFactory().openSession()) {
+            vehicleRepository.setSession(session);
+            return vehicleRepository.findById(id).orElseThrow(()-> new RuntimeException("Nie można znaleźć pojazdu"));
+        }
     }
 
     @Override
     public Vehicle addVehicle(Vehicle vehicle) {
-        return null;
+        Transaction tx = null;
+        try (Session session = HibernateConfig.getSessionFactory().openSession()) {
+            tx = session.beginTransaction();
+            vehicleRepository.setSession(session);
+            Vehicle saved = vehicleRepository.save(vehicle);
+            tx.commit();
+            return saved;
+        } catch (RuntimeException e) {
+            if (tx != null) tx.rollback();
+            throw e;
+        }
+
     }
 
     @Override
     public void removeVehicle(String vehicleId) {
+        Transaction tx = null;
+        try (Session session = HibernateConfig.getSessionFactory().openSession()) {
+            tx = session.beginTransaction();
+            vehicleRepository.setSession(session);
+            rentalRepository.setSession(session);
 
+            if (rentalRepository.findByVehicleIdAndReturnDateIsNull(vehicleId).isPresent()) {
+                throw new IllegalStateException("Pojazd jest aktualnie wypożyczony!");
+            }
+
+            vehicleRepository.deleteById(vehicleId);
+            tx.commit();
+        } catch (RuntimeException e) {
+            if (tx != null) tx.rollback();
+            throw e;
+        }
     }
 
     @Override
     public boolean isVehicleRented(String vehicleId) {
-        return false;
+        try (Session session = HibernateConfig.getSessionFactory().openSession()) {
+            rentalRepository.setSession(session);
+            return rentalRepository.findByVehicleIdAndReturnDateIsNull(vehicleId).isPresent();
+        }
     }
 }
