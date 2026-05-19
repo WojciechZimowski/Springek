@@ -46,7 +46,7 @@ public class RentalHibernateService implements RentalServiceInterface {
                     .setParameter("uId", userId)
                     .uniqueResultOptional();
 
-            if (activeUserRental.isPresent()) {
+            if (userHasActiveRental(userId)) {
                 userAlreadyHasRental = true;
             }
 

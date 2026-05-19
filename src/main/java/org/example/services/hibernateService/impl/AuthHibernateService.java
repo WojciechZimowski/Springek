@@ -18,7 +18,7 @@ public class AuthHibernateService implements AuthServiceInterface {
     public AuthHibernateService(UserHibernateRepository userRepository) {
         this.userRepository = userRepository;
     }
-
+//entity manager aby działał ze springiem!!
     @Override
     public boolean register(String login, String rawPassword) {
         Transaction tx = null;
