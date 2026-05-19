@@ -124,7 +124,7 @@ public class UIForUser {
             return;
         }
         for (Vehicle v : available) {
-            System.out.println("[" + v.getId() + "] " + v.getBrand() + " " + v.getModel() + " (Tablice: " + v.getPlate() + ", Cena: " + v.getPrice() + "zł)");
+            System.out.println("[" + v.getId() + "] " + v.getBrand() + " " + v.getModel() + " (Tablice: " + v.getPlate() + ", Cena: " + v.getPrice() + "zł)"+ " [" + v.getAttributes() + "]");
         }
     }
 
@@ -259,7 +259,7 @@ public class UIForUser {
         System.out.println("Twoje aktywne wypożyczenia:");
 
         rentalService.findActiveRentalByUserId(currentUser.getId()).ifPresentOrElse(
-                r -> System.out.println("- " + r.getVehicle().getBrand() + " " + r.getVehicle().getModel() + " [" + r.getVehicle().getPlate() + "]"),
+                r -> System.out.println("- " + r.getVehicle().getBrand() + " " + r.getVehicle().getModel() + " [" + r.getVehicle().getPlate() + "]"+ " [" + r.getVehicle().getAttributes() + "]"),
                 () -> System.out.println("  (Brak aktywnych wypożyczeń)")
         );
     }
