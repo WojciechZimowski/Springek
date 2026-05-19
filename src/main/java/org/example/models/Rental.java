@@ -23,7 +23,7 @@ public class Rental {
     private User user;
     @Column(name="rent_date",nullable = false)
     private String rentDateTime;
-    @Column(name="return_date",nullable = false)
+    @Column(name="return_date")
     private String returnDateTime;
 
     public Rental copy() {

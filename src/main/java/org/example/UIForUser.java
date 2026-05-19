@@ -223,7 +223,7 @@ public class UIForUser {
             rentalService.rentVehicle(currentUser.getId(), vehicleId);
             System.out.println("Pojazd został pomyślnie wypożyczony!");
         } catch (RuntimeException e) {
-            System.err.println("Błąd wypożyczenia: " + e.getMessage());
+            System.out.println("Błąd wypożyczenia: " + e.getMessage());
         }
     }
 
@@ -250,7 +250,7 @@ public class UIForUser {
                 System.out.println("Anulowano zwrot.");
             }
         } catch (RuntimeException e) {
-            System.err.println("Błąd zwrotu: " + e.getMessage());
+            System.out.println("Błąd zwrotu: " + e.getMessage());
         }
     }
 

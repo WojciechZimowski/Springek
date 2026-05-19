@@ -1,6 +1,7 @@
 package org.example.services.hibernateService.impl;
 
 import org.example.db.HibernateConfig;
+import org.example.models.Rental;
 import org.example.models.Vehicle;
 import org.example.repositories.RentalRepository;
 import org.example.repositories.hibernate.RentalHibernateRepository;
@@ -11,6 +12,7 @@ import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
 
 import java.util.List;
+import java.util.Optional;
 
 public class VehicleHibernateService implements VehicleServiceInterface {
     private final VehicleHibernateRepository vehicleRepository;
@@ -24,22 +26,18 @@ public class VehicleHibernateService implements VehicleServiceInterface {
     @Override
     public List<Vehicle> findAllVehicles() {
         try(Session session = HibernateConfig.getSessionFactory().openSession()) {
-            return session.createQuery(
-                            "FROM Vehicle v WHERE v.id NOT IN " +
-                                    "(SELECT r.vehicle.id FROM Rental r WHERE r.returnDateTime IS NULL)", Vehicle.class)
-                    .getResultList();
-        }
+            return session.createQuery("FROM Vehicle", Vehicle.class).getResultList();}
 
     }
 
     @Override
     public List<Vehicle> findAvailableVehicles() {
         try (Session session = HibernateConfig.getSessionFactory().openSession()) {
-            vehicleRepository.setSession(session);
-            rentalRepository.setSession(session);
-            return vehicleRepository.findAll().stream()
-                    .filter(v -> rentalRepository.findByVehicleIdAndReturnDateIsNull(v.getId()).isEmpty())
-                    .toList();
+            return session.createQuery(
+                            "FROM Vehicle v WHERE v.id NOT IN " +
+                                    "(SELECT r.vehicle.id FROM Rental r WHERE r.returnDateTime IS NULL OR r.returnDateTime = '')",
+                            Vehicle.class)
+                    .getResultList();
         }
 
     }
@@ -71,22 +69,38 @@ public class VehicleHibernateService implements VehicleServiceInterface {
     @Override
     public void removeVehicle(String vehicleId) {
         Transaction tx = null;
+        boolean isRented = false;
         try (Session session = HibernateConfig.getSessionFactory().openSession()) {
             tx = session.beginTransaction();
-            vehicleRepository.setSession(session);
-            rentalRepository.setSession(session);
+            Optional<Rental> activeRental = session.createQuery(
+                            "FROM Rental r WHERE r.vehicle.id = :vId AND (r.returnDateTime IS NULL OR r.returnDateTime = '')", Rental.class)
+                    .setParameter("vId", vehicleId)
+                    .uniqueResultOptional();
 
-            if (rentalRepository.findByVehicleIdAndReturnDateIsNull(vehicleId).isPresent()) {
-                throw new IllegalStateException("Pojazd jest aktualnie wypożyczony!");
+            if (activeRental.isPresent()) {
+                isRented = true;
+            } else {
+                Vehicle vehicle = session.get(Vehicle.class, vehicleId);
+                if (vehicle != null) {
+                    session.remove(vehicle);
+                } else {
+                    throw new IllegalArgumentException("Nie znaleziono pojazdu o podanym ID: " + vehicleId);
+                }
             }
-
-            vehicleRepository.deleteById(vehicleId);
             tx.commit();
         } catch (RuntimeException e) {
-            if (tx != null) tx.rollback();
+            if (tx != null && tx.isActive()) {
+                tx.rollback();
+            }
             throw e;
         }
+
+        if (isRented) {
+            throw new IllegalStateException("Pojazd jest aktualnie wypożyczony i nie można ga usunąć!");
+        }
     }
+
+
 
     @Override
     public boolean isVehicleRented(String vehicleId) {
