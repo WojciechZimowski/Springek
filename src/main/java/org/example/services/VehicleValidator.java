@@ -2,9 +2,10 @@ package org.example.services;
 
 import org.example.models.Vehicle;
 import org.example.models.VehicleCategoryConfig;
+import org.springframework.stereotype.Component;
 
 import java.util.Map;
-
+@Component
 public class VehicleValidator {
     private final VehicleCategoryConfigService configService;
 
