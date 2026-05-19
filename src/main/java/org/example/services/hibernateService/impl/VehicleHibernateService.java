@@ -77,7 +77,7 @@ public class VehicleHibernateService implements VehicleServiceInterface {
                     .setParameter("vId", vehicleId)
                     .uniqueResultOptional();
 
-            if (activeRental.isPresent()) {
+            if (isVehicleRented(vehicleId)) {
                 isRented = true;
             } else {
                 Vehicle vehicle = session.get(Vehicle.class, vehicleId);

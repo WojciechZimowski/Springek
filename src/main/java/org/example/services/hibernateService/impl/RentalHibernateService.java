@@ -58,7 +58,7 @@ public class RentalHibernateService implements RentalServiceInterface {
                     .setParameter("vId", vehicleId)
                     .uniqueResultOptional();
 
-            if (activeVehicleRental.isPresent()) {
+            if (vehicleHasActiveRental(vehicleId)) {
                 vehicleAlreadyRented = true;
             }
             if (!userAlreadyHasRental && !vehicleAlreadyRented && vehicle != null && user != null) {
