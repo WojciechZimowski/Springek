@@ -4,9 +4,12 @@ import org.example.db.HibernateConfig;
 import org.example.models.Rental;
 import org.example.models.User;
 import org.example.models.Vehicle;
-import org.example.repositories.hibernate.RentalHibernateRepository;
-import org.example.repositories.hibernate.UserHibernateRepository;
-import org.example.repositories.hibernate.VehicleHibernateRepository;
+import org.example.repositories.IUserRepository;
+import org.example.repositories.IVehicleRepository;
+import org.example.repositories.RentalRepository;
+import org.example.repositories.hibernate.RentalJpaRepository;
+import org.example.repositories.hibernate.UserJpaRepository;
+import org.example.repositories.hibernate.VehicleJpaRepository;
 import org.example.services.hibernateService.RentalServiceInterface;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
@@ -22,14 +25,14 @@ import java.util.UUID;
 @Service
 @Profile("jpa")
 @Transactional
-public class RentalHibernateService implements RentalServiceInterface {
-    private final RentalHibernateRepository rentalRepository;
-    private final VehicleHibernateRepository vehicleRepository;
-    private final UserHibernateRepository userRepository;
+public class RentalService implements RentalServiceInterface {
+    private final RentalRepository rentalRepository;
+    private final IVehicleRepository vehicleRepository;
+    private final IUserRepository userRepository;
 
-    public RentalHibernateService(RentalHibernateRepository rentalRepository,
-                                  VehicleHibernateRepository vehicleHibernateService,
-                                  UserHibernateRepository userHibernateService) {
+    public RentalService(RentalJpaRepository rentalRepository,
+                         VehicleJpaRepository vehicleHibernateService,
+                         UserJpaRepository userHibernateService) {
         this.rentalRepository = rentalRepository;
         this.vehicleRepository = vehicleHibernateService;
         this.userRepository = userHibernateService;

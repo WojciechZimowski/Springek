@@ -1,12 +1,8 @@
 package org.example.repositories.hibernate;
 
-import org.example.db.HibernateConfig;
 import org.example.models.Vehicle;
 import org.example.repositories.IVehicleRepository;
-import org.example.repositories.hibernate.jpa.VehicleJpaRepository;
-import org.hibernate.Session;
-import org.hibernate.SessionFactory;
-import org.hibernate.Transaction;
+import org.example.repositories.hibernate.jpa.IVehicleJpaRepository;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Repository;
 
@@ -16,10 +12,10 @@ import java.util.UUID;
 
 @Repository
 @Profile("jpa")
-public class VehicleHibernateRepository implements IVehicleRepository {
-    private final VehicleJpaRepository vehicleJpaRepository;
+public class VehicleJpaRepository implements IVehicleRepository {
+    private final IVehicleJpaRepository vehicleJpaRepository;
 
-    public VehicleHibernateRepository(VehicleJpaRepository vehicleJpaRepository) {
+    public VehicleJpaRepository(IVehicleJpaRepository vehicleJpaRepository) {
         this.vehicleJpaRepository = vehicleJpaRepository;
     }
 

@@ -2,25 +2,21 @@ package org.example.services.hibernateService.impl;
 
 import jakarta.transaction.Transactional;
 import org.apache.commons.codec.digest.DigestUtils;
-import org.example.db.HibernateConfig;
 import org.example.models.Role;
 import org.example.models.User;
-import org.example.repositories.hibernate.UserHibernateRepository;
+import org.example.repositories.IUserRepository;
+import org.example.repositories.hibernate.UserJpaRepository;
 import org.example.services.hibernateService.AuthServiceInterface;
-import org.hibernate.Session;
-import org.hibernate.Transaction;
-import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
 import java.util.UUID;
 @Service
-@Profile("jpa")
 @Transactional
-public class AuthHibernateService implements AuthServiceInterface {
-    private final UserHibernateRepository userRepository;
+public class AuthService implements AuthServiceInterface {
+    private final IUserRepository userRepository;
 
-    public AuthHibernateService(UserHibernateRepository userRepository) {
+    public AuthService(UserJpaRepository userRepository) {
         this.userRepository = userRepository;
     }
 //entity manager aby działał ze springiem!!

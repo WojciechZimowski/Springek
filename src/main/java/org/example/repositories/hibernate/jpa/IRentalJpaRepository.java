@@ -7,6 +7,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import java.util.Optional;
 
 @Profile("jpa")
-public interface RentalJpaRepository extends JpaRepository<Rental,String> {
+public interface IRentalJpaRepository extends JpaRepository<Rental,String> {
     Optional<Rental> findByVehicleIdAndReturnDateIsNull(String vehicleId);
 }

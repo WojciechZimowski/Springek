@@ -4,20 +4,19 @@ import com.google.gson.reflect.TypeToken;
 import org.example.db.JsonFileStorage;
 import org.example.models.VehicleCategoryConfig;
 import org.example.repositories.VehicleCategoryConfigRepository;
-import org.example.repositories.hibernate.RentalHibernateRepository;
-import org.example.repositories.hibernate.UserHibernateRepository;
-import org.example.repositories.hibernate.VehicleHibernateRepository;
+import org.example.repositories.hibernate.RentalJpaRepository;
+import org.example.repositories.hibernate.UserJpaRepository;
+import org.example.repositories.hibernate.VehicleJpaRepository;
 import org.example.repositories.impl.VehicleCategoryConfigJsonRepository;
 import org.example.services.VehicleCategoryConfigService;
-import org.example.services.VehicleValidator;
 import org.example.services.hibernateService.AuthServiceInterface;
 import org.example.services.hibernateService.RentalServiceInterface;
 import org.example.services.hibernateService.UserServiceInterface;
 import org.example.services.hibernateService.VehicleServiceInterface;
-import org.example.services.hibernateService.impl.AuthHibernateService;
-import org.example.services.hibernateService.impl.RentalHibernateService;
-import org.example.services.hibernateService.impl.UserHibernateService;
-import org.example.services.hibernateService.impl.VehicleHibernateService;
+import org.example.services.hibernateService.impl.AuthService;
+import org.example.services.hibernateService.impl.RentalService;
+import org.example.services.hibernateService.impl.UserService;
+import org.example.services.hibernateService.impl.VehicleService;
 
 
 import java.lang.reflect.Type;
@@ -33,14 +32,14 @@ public class Main {
         //integracja z jdbc
         System.out.println(">>> Uruchamianie systemu w trybie HIBERNATE");
 
-        RentalHibernateRepository rentalRepo = new RentalHibernateRepository();
-        VehicleHibernateRepository vehicleRepo = new VehicleHibernateRepository();
-        UserHibernateRepository userRepo = new UserHibernateRepository();
+        RentalJpaRepository rentalRepo = new RentalJpaRepository();
+        VehicleJpaRepository vehicleRepo = new VehicleJpaRepository();
+        UserJpaRepository userRepo = new UserJpaRepository();
 
-         AuthServiceInterface authService = new AuthHibernateService(userRepo);
-        VehicleServiceInterface vehicleService = new VehicleHibernateService(vehicleRepo, rentalRepo);
-        UserServiceInterface userService = new UserHibernateService(userRepo, rentalRepo);
-        RentalServiceInterface rentalService = new RentalHibernateService(rentalRepo, vehicleRepo, userRepo);
+         AuthServiceInterface authService = new AuthService(userRepo);
+        VehicleServiceInterface vehicleService = new VehicleService(vehicleRepo, rentalRepo);
+        UserServiceInterface userService = new UserService(userRepo, rentalRepo);
+        RentalServiceInterface rentalService = new RentalService(rentalRepo, vehicleRepo, userRepo);
 
         UIForUser ui = new UIForUser(configService, vehicleService, userService, rentalService, authService);
         ui.start();

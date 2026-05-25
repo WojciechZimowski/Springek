@@ -1,12 +1,8 @@
 package org.example.repositories.hibernate;
 
-import org.example.db.HibernateConfig;
 import org.example.models.User;
 import org.example.repositories.IUserRepository;
-import org.example.repositories.hibernate.jpa.UserJpaRepository;
-import org.hibernate.Session;
-import org.hibernate.SessionFactory;
-import org.hibernate.Transaction;
+import org.example.repositories.hibernate.jpa.IUserJpaRepository;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Repository;
 
@@ -16,10 +12,10 @@ import java.util.UUID;
 
 @Repository
 @Profile("jpa")
-public class UserHibernateRepository implements IUserRepository {
-    private final UserJpaRepository userJpaRepository;
+public class UserJpaRepository implements IUserRepository {
+    private final IUserJpaRepository userJpaRepository;
 
-    public UserHibernateRepository(UserJpaRepository userJpaRepository) {
+    public UserJpaRepository(IUserJpaRepository userJpaRepository) {
         this.userJpaRepository = userJpaRepository;
     }
 

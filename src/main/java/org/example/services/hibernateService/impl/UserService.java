@@ -1,24 +1,22 @@
 package org.example.services.hibernateService.impl;
 
-import org.example.db.HibernateConfig;
 import org.example.models.User;
-import org.example.repositories.hibernate.RentalHibernateRepository;
-import org.example.repositories.hibernate.UserHibernateRepository;
-import org.example.repositories.hibernate.VehicleHibernateRepository;
+import org.example.repositories.IUserRepository;
+import org.example.repositories.RentalRepository;
+import org.example.repositories.hibernate.RentalJpaRepository;
+import org.example.repositories.hibernate.UserJpaRepository;
 import org.example.services.hibernateService.UserServiceInterface;
-import org.hibernate.Session;
-import org.hibernate.Transaction;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 @Service
 @Transactional
-public class UserHibernateService implements UserServiceInterface {
-    private final UserHibernateRepository userRepository;
-    private final RentalHibernateRepository rentalRepository;
+public class UserService implements UserServiceInterface {
+    private final IUserRepository userRepository;
+    private final RentalRepository rentalRepository;
 
-    public UserHibernateService(UserHibernateRepository userRepository, RentalHibernateRepository rentalRepository) {
+    public UserService(UserJpaRepository userRepository, RentalJpaRepository rentalRepository) {
         this.userRepository = userRepository;
         this.rentalRepository = rentalRepository;
     }

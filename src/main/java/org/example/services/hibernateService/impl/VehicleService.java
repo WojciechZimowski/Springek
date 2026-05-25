@@ -1,27 +1,23 @@
 package org.example.services.hibernateService.impl;
 
-import org.example.db.HibernateConfig;
-import org.example.models.Rental;
 import org.example.models.Vehicle;
+import org.example.repositories.IVehicleRepository;
 import org.example.repositories.RentalRepository;
-import org.example.repositories.hibernate.RentalHibernateRepository;
-import org.example.repositories.hibernate.VehicleHibernateRepository;
+import org.example.repositories.hibernate.RentalJpaRepository;
+import org.example.repositories.hibernate.VehicleJpaRepository;
 import org.example.services.hibernateService.VehicleServiceInterface;
-import org.hibernate.Session;
-import org.hibernate.SessionFactory;
-import org.hibernate.Transaction;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.Optional;
+
 @Service
 @Transactional
-public class VehicleHibernateService implements VehicleServiceInterface {
-    private final VehicleHibernateRepository vehicleRepository;
-    private final RentalHibernateRepository rentalRepository;
+public class VehicleService implements VehicleServiceInterface {
+    private final IVehicleRepository vehicleRepository;
+    private final RentalRepository rentalRepository;
 
-    public VehicleHibernateService(VehicleHibernateRepository vehicleRepository, RentalHibernateRepository rentalRepository) {
+    public VehicleService(VehicleJpaRepository vehicleRepository, RentalJpaRepository rentalRepository) {
         this.vehicleRepository = vehicleRepository;
         this.rentalRepository = rentalRepository;
     }

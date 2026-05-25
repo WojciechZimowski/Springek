@@ -2,8 +2,7 @@ package org.example.repositories.hibernate;
 
 import org.example.models.Rental;
 import org.example.repositories.RentalRepository;
-import org.example.repositories.hibernate.jpa.RentalJpaRepository;
-import org.hibernate.Session;
+import org.example.repositories.hibernate.jpa.IRentalJpaRepository;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Repository;
 
@@ -13,10 +12,10 @@ import java.util.UUID;
 
 @Repository
 @Profile("jpa")
-public class RentalHibernateRepository implements RentalRepository {
-    private final RentalJpaRepository rentalJpaRepository;
+public class RentalJpaRepository implements RentalRepository {
+    private final IRentalJpaRepository rentalJpaRepository;
 
-    public RentalHibernateRepository(RentalJpaRepository rentalJpaRepository) {
+    public RentalJpaRepository(IRentalJpaRepository rentalJpaRepository) {
         this.rentalJpaRepository = rentalJpaRepository;
     }
 
