@@ -1,5 +1,6 @@
 package org.example.repositories;
 import org.example.models.Vehicle;
+import org.springframework.stereotype.Repository;
 
 import java.util.List;
 import java.util.Optional;

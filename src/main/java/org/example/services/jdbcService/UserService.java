@@ -3,9 +3,13 @@ package org.example.services.jdbcService;
 import org.example.models.User;
 import org.example.repositories.IUserRepository;
 import org.example.repositories.RentalRepository;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
+@Service
+@Transactional
 public class UserService {
     private final IUserRepository userJsonRepository;
     private final RentalRepository rentalJsonRepository;

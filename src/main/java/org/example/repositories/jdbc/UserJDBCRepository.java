@@ -4,18 +4,30 @@ import org.example.db.JdbcConnectionManager;
 import org.example.models.Role;
 import org.example.models.User;
 import org.example.repositories.IUserRepository;
+import org.springframework.context.annotation.Profile;
+import org.springframework.jdbc.datasource.DataSourceUtils;
+import org.springframework.stereotype.Repository;
 
+import javax.sql.DataSource;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-
+@Repository
+@Profile("jdbc")
 public class UserJDBCRepository implements IUserRepository {
+    private final DataSource dataSource;
+
+    public UserJDBCRepository(DataSource dataSource) {
+        this.dataSource = dataSource;
+    }
+
     @Override
     public List<User> findAll() {
         List<User> users = new ArrayList<>();
         String sql = "SELECT * FROM users";
-        try (Connection conn = JdbcConnectionManager.getInstance().getConnection();
+        Connection conn = DataSourceUtils.getConnection(dataSource);
+        try (
              PreparedStatement stmt = conn.prepareStatement(sql);
              ResultSet rs = stmt.executeQuery()) {
             while (rs.next()) {
@@ -23,6 +35,8 @@ public class UserJDBCRepository implements IUserRepository {
             }
         } catch (SQLException e) {
             throw new RuntimeException(e);
+        }finally {
+            DataSourceUtils.releaseConnection(conn, dataSource);
         }
         return users;
     }
@@ -30,7 +44,8 @@ public class UserJDBCRepository implements IUserRepository {
     @Override
     public Optional<User> findById(String id) {
         String sql = "SELECT * FROM users WHERE id = ?";
-        try (Connection conn = JdbcConnectionManager.getInstance().getConnection();
+        Connection conn = DataSourceUtils.getConnection(dataSource);
+        try (
              PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setString(1, id);
             try (ResultSet rs = stmt.executeQuery()) {
@@ -38,6 +53,8 @@ public class UserJDBCRepository implements IUserRepository {
             }
         } catch (SQLException e) {
             throw new RuntimeException(e);
+        }finally {
+            DataSourceUtils.releaseConnection(conn, dataSource);
         }
         return Optional.empty();
     }
@@ -45,7 +62,8 @@ public class UserJDBCRepository implements IUserRepository {
     @Override
     public Optional<User> findByLogin(String login) {
         String sql = "SELECT * FROM users WHERE login = ?";
-        try (Connection conn = JdbcConnectionManager.getInstance().getConnection();
+        Connection conn = DataSourceUtils.getConnection(dataSource);
+        try (
              PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setString(1, login);
             try (ResultSet rs = stmt.executeQuery()) {
@@ -53,6 +71,8 @@ public class UserJDBCRepository implements IUserRepository {
             }
         } catch (SQLException e) {
             throw new RuntimeException(e);
+        }finally {
+            DataSourceUtils.releaseConnection(conn, dataSource);
         }
         return Optional.empty();
     }
@@ -63,7 +83,8 @@ public class UserJDBCRepository implements IUserRepository {
         String sql = "INSERT INTO users (id, login, password_hash, role) VALUES (?, ?, ?, ?) " +
                 "ON CONFLICT (id) DO UPDATE SET login = EXCLUDED.login, " +
                 "password_hash = EXCLUDED.password_hash, role = EXCLUDED.role";
-        try (Connection conn = JdbcConnectionManager.getInstance().getConnection();
+        Connection conn = DataSourceUtils.getConnection(dataSource);
+        try (
              PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setString(1, user.getId());
             stmt.setString(2, user.getLogin());
@@ -75,18 +96,23 @@ public class UserJDBCRepository implements IUserRepository {
             return user;
         } catch (SQLException e) {
             throw new RuntimeException(e);
+        }finally {
+            DataSourceUtils.releaseConnection(conn, dataSource);
         }
     }
 
     @Override
     public void deleteById(String id) {
         String sql = "DELETE FROM users WHERE id = ?";
-        try (Connection conn = JdbcConnectionManager.getInstance().getConnection();
+        Connection conn = DataSourceUtils.getConnection(dataSource);
+        try (
              PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setString(1, id);
             stmt.executeUpdate();
         } catch (SQLException e) {
             throw new RuntimeException(e);
+        }finally {
+            DataSourceUtils.releaseConnection(conn, dataSource);
         }
     }
 

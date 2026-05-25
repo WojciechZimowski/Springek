@@ -4,9 +4,12 @@ import org.example.models.Vehicle;
 import org.example.repositories.IVehicleRepository;
 import org.example.repositories.RentalRepository;
 import org.example.services.VehicleValidator;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-
+@Service
+@Transactional
 public class VehicleService {
     private final IVehicleRepository vehicleRepository;
     private final RentalRepository rentalRepository;

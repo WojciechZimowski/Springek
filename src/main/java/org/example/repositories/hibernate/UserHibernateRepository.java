@@ -3,44 +3,54 @@ package org.example.repositories.hibernate;
 import org.example.db.HibernateConfig;
 import org.example.models.User;
 import org.example.repositories.IUserRepository;
+import org.example.repositories.hibernate.jpa.UserJpaRepository;
 import org.hibernate.Session;
+import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
+import org.springframework.context.annotation.Profile;
+import org.springframework.stereotype.Repository;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
+@Repository
+@Profile("jpa")
 public class UserHibernateRepository implements IUserRepository {
-    private Session session;
+    private final UserJpaRepository userJpaRepository;
+
+    public UserHibernateRepository(UserJpaRepository userJpaRepository) {
+        this.userJpaRepository = userJpaRepository;
+    }
 
     @Override
     public List<User> findAll() {
-        return session.createQuery("from User",User.class).list();
+        return userJpaRepository.findAll();
     }
 
     @Override
     public Optional<User> findById(String id) {
-        return Optional.ofNullable(session.get(User.class,id));
+        return userJpaRepository.findById(id);
     }
 
     @Override
     public Optional<User> findByLogin(String login) {
-        return session.createQuery("from User Where login= :l",User.class).setParameter("l",login).uniqueResultOptional();
+        return userJpaRepository.findById(login);
     }
 
     @Override
     public User save(User user) {
-        return session.merge(user);
+        if (user.getId() == null || user.getId().isBlank()) {
+            user.setId(UUID.randomUUID().toString());
+        }
+        return userJpaRepository.save(user);
     }
 
     @Override
     public void deleteById(String id) {
-        User user = session.get(User.class,id);
-        if(user!=null){
-            session.delete(user);
-        }
+       userJpaRepository.deleteById(id);
+
     }
 
-    public void setSession(Session session) {
-        this.session = session;
-    }
+
 }

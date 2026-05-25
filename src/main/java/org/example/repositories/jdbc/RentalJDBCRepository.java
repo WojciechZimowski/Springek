@@ -5,7 +5,11 @@ import org.example.models.Rental;
 import org.example.models.User;
 import org.example.models.Vehicle;
 import org.example.repositories.RentalRepository;
+import org.springframework.context.annotation.Profile;
+import org.springframework.jdbc.datasource.DataSourceUtils;
+import org.springframework.stereotype.Repository;
 
+import javax.sql.DataSource;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -14,14 +18,21 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
-
+@Repository
+@Profile("jdbc")
 public class RentalJDBCRepository implements RentalRepository {
+    private final DataSource dataSource;
+
+    public RentalJDBCRepository(DataSource dataSource) {
+        this.dataSource = dataSource;
+    }
+
     @Override
     public List<Rental> findAll() {
         List<Rental> rentals = new ArrayList<>();
         String sql =  "SELECT * FROM rental";
-        try(Connection connection = JdbcConnectionManager.getInstance().getConnection();
-            PreparedStatement stmt = connection.prepareStatement(sql);
+        Connection conn = DataSourceUtils.getConnection(dataSource);
+        try(   PreparedStatement stmt = conn.prepareStatement(sql);
             ResultSet rs = stmt.executeQuery()
         ){
          while(rs.next()){
@@ -30,6 +41,9 @@ public class RentalJDBCRepository implements RentalRepository {
         }
          catch (SQLException e) {
             throw new RuntimeException(e);
+        }finally {
+
+            DataSourceUtils.releaseConnection(conn, dataSource);
         }
 
         return rentals;
@@ -38,8 +52,9 @@ public class RentalJDBCRepository implements RentalRepository {
     @Override
     public Optional<Rental> findById(String id) {
         String sql =  "SELECT * FROM rental Where id = ?";
-        try(Connection connection = JdbcConnectionManager.getInstance().getConnection();
-            PreparedStatement stmt = connection.prepareStatement(sql);
+        Connection conn = DataSourceUtils.getConnection(dataSource);
+
+        try(   PreparedStatement stmt = conn.prepareStatement(sql);
 
         ){
             try (ResultSet rs = stmt.executeQuery()) {
@@ -48,6 +63,8 @@ public class RentalJDBCRepository implements RentalRepository {
         }
         catch (SQLException e) {
             throw new RuntimeException(e);
+        }finally {
+            DataSourceUtils.releaseConnection(conn, dataSource);
         }
         return Optional.empty();
     }
@@ -59,7 +76,9 @@ public class RentalJDBCRepository implements RentalRepository {
         }
         String sql = "INSERT INTO rental (id, vehicle_id, user_id, rent_date, return_date) VALUES (?, ?, ?, ?, ?) " +
                 "ON CONFLICT (id) DO UPDATE SET return_date = EXCLUDED.return_date";
-        try (Connection conn = JdbcConnectionManager.getInstance().getConnection();
+        Connection conn = DataSourceUtils.getConnection(dataSource);
+
+        try (
              PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setString(1, rental.getId());
             stmt.setString(2, rental.getVehicleId());
@@ -71,26 +90,33 @@ public class RentalJDBCRepository implements RentalRepository {
             return rental;
         } catch (SQLException e) {
             throw new RuntimeException("Błąd zapisu wypożyczenia", e);
+        }finally {
+
+            DataSourceUtils.releaseConnection(conn, dataSource);
         }
     }
 
     @Override
     public void deleteById(String id) {
         String sql =  "DELETE FROM rental Where id = ?";
-        try(Connection conn =JdbcConnectionManager.getInstance().getConnection();
-            PreparedStatement stmt  = conn.prepareStatement(sql)){
+        Connection conn = DataSourceUtils.getConnection(dataSource);
+
+        try( PreparedStatement stmt  = conn.prepareStatement(sql)){
             stmt.setString(1,id);
             stmt.executeUpdate();
         }catch (SQLException e){
             throw new RuntimeException(e);
+        }finally {
+            DataSourceUtils.releaseConnection(conn, dataSource);
         }
     }
 
     @Override
     public Optional<Rental> findByVehicleIdAndReturnDateIsNull(String vehicleId) {
         String sql =  "SELECT * FROM rental Where vehicle_id = ? AND return_date IS NULL";
-        try(Connection conn =JdbcConnectionManager.getInstance().getConnection();
-            PreparedStatement stmt  = conn.prepareStatement(sql)){
+        Connection conn = DataSourceUtils.getConnection(dataSource);
+
+        try( PreparedStatement stmt  = conn.prepareStatement(sql)){
             stmt.setString(1,vehicleId);
             try(ResultSet rs = stmt.executeQuery()){
                 if(rs.next()){
@@ -99,6 +125,9 @@ public class RentalJDBCRepository implements RentalRepository {
             }
         } catch (SQLException e) {
             throw new RuntimeException(e);
+        }finally {
+            DataSourceUtils.releaseConnection(conn, dataSource);
+
         }
         return Optional.empty();
     }

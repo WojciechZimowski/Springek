@@ -10,10 +10,13 @@ import org.example.services.hibernateService.VehicleServiceInterface;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
-
+@Service
+@Transactional
 public class VehicleHibernateService implements VehicleServiceInterface {
     private final VehicleHibernateRepository vehicleRepository;
     private final RentalHibernateRepository rentalRepository;
@@ -24,89 +27,49 @@ public class VehicleHibernateService implements VehicleServiceInterface {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<Vehicle> findAllVehicles() {
-        try(Session session = HibernateConfig.getSessionFactory().openSession()) {
-            return session.createQuery("FROM Vehicle", Vehicle.class).getResultList();}
-
-    }
+    return vehicleRepository.findAll(); }
 
     @Override
+    @Transactional(readOnly = true)
     public List<Vehicle> findAvailableVehicles() {
-        try (Session session = HibernateConfig.getSessionFactory().openSession()) {
-            return session.createQuery(
-                            "FROM Vehicle v WHERE v.id NOT IN " +
-                                    "(SELECT r.vehicle.id FROM Rental r WHERE r.returnDateTime IS NULL OR r.returnDateTime = '')",
-                            Vehicle.class)
-                    .getResultList();
-        }
+        return vehicleRepository.findAll().stream()
+                .filter(v -> rentalRepository.findByVehicleIdAndReturnDateIsNull(v.getId()).isEmpty())
+                .toList();
 
     }
 
     @Override
+    @Transactional(readOnly = true)
     public Vehicle findById(String id) {
-        try(Session session = HibernateConfig.getSessionFactory().openSession()) {
-            vehicleRepository.setSession(session);
-            return vehicleRepository.findById(id).orElseThrow(()-> new RuntimeException("Nie można znaleźć pojazdu"));
-        }
+        return vehicleRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Nie można znaleźć pojazdu"));
     }
 
     @Override
     public Vehicle addVehicle(Vehicle vehicle) {
-        Transaction tx = null;
-        try (Session session = HibernateConfig.getSessionFactory().openSession()) {
-            tx = session.beginTransaction();
-            vehicleRepository.setSession(session);
-            Vehicle saved = vehicleRepository.save(vehicle);
-            tx.commit();
-            return saved;
-        } catch (RuntimeException e) {
-            if (tx != null) tx.rollback();
-            throw e;
-        }
+        return vehicleRepository.save(vehicle);
 
     }
 
     @Override
     public void removeVehicle(String vehicleId) {
-        Transaction tx = null;
-        boolean isRented = false;
-        try (Session session = HibernateConfig.getSessionFactory().openSession()) {
-            tx = session.beginTransaction();
-            Optional<Rental> activeRental = session.createQuery(
-                            "FROM Rental r WHERE r.vehicle.id = :vId AND (r.returnDateTime IS NULL OR r.returnDateTime = '')", Rental.class)
-                    .setParameter("vId", vehicleId)
-                    .uniqueResultOptional();
-
-            if (isVehicleRented(vehicleId)) {
-                isRented = true;
-            } else {
-                Vehicle vehicle = session.get(Vehicle.class, vehicleId);
-                if (vehicle != null) {
-                    session.remove(vehicle);
-                } else {
-                    throw new IllegalArgumentException("Nie znaleziono pojazdu o podanym ID: " + vehicleId);
-                }
-            }
-            tx.commit();
-        } catch (RuntimeException e) {
-            if (tx != null && tx.isActive()) {
-                tx.rollback();
-            }
-            throw e;
+        if (isVehicleRented(vehicleId)) {
+            throw new IllegalStateException("Pojazd jest aktualnie wypożyczony i nie można go usunąć!");
         }
 
-        if (isRented) {
-            throw new IllegalStateException("Pojazd jest aktualnie wypożyczony i nie można ga usunąć!");
-        }
+        vehicleRepository.findById(vehicleId)
+                .orElseThrow(() -> new IllegalArgumentException("Nie znaleziono pojazdu o podanym ID: " + vehicleId));
+
+        vehicleRepository.deleteById(vehicleId);
     }
 
 
 
     @Override
+    @Transactional(readOnly = true)
     public boolean isVehicleRented(String vehicleId) {
-        try (Session session = HibernateConfig.getSessionFactory().openSession()) {
-            rentalRepository.setSession(session);
-            return rentalRepository.findByVehicleIdAndReturnDateIsNull(vehicleId).isPresent();
-        }
+        return rentalRepository.findByVehicleIdAndReturnDateIsNull(vehicleId).isPresent();
     }
 }

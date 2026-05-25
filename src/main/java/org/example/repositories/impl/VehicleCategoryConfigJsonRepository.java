@@ -3,10 +3,13 @@ package org.example.repositories.impl;
 import org.example.db.JsonFileStorage;
 import org.example.models.VehicleCategoryConfig;
 import org.example.repositories.VehicleCategoryConfigRepository;
+import org.springframework.context.annotation.Profile;
+import org.springframework.stereotype.Repository;
 
 import java.util.List;
 import java.util.Optional;
-
+@Repository
+@Profile("json")
 public class VehicleCategoryConfigJsonRepository implements VehicleCategoryConfigRepository {
     private final JsonFileStorage<VehicleCategoryConfig> jsonFileStorage;
 

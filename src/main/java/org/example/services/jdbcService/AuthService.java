@@ -4,10 +4,12 @@ import org.example.models.Role;
 import org.example.models.User;
 import org.example.repositories.IUserRepository;
 import org.mindrot.jbcrypt.BCrypt;
+import org.springframework.stereotype.Service;
 
 import java.util.Optional;
 import java.util.UUID;
 
+@Service
 public class AuthService {
     private final IUserRepository userRepo;
 

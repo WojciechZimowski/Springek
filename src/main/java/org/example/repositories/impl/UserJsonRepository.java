@@ -1,21 +1,27 @@
 package org.example.repositories.impl;
 
 import org.example.db.JsonFileStorage;
+import org.example.models.Vehicle;
 import org.example.repositories.IUserRepository;
 import org.example.models.User;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Profile;
+import org.springframework.stereotype.Repository;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
-
+@Repository
+@Profile("json")
 public class UserJsonRepository implements IUserRepository {
-    private final JsonFileStorage<User> jsonFileStorage;
-    private static List<User> users=new ArrayList<>();
+    private JsonFileStorage<User> jsonFileStorage;
+    private List<User> users =  new ArrayList<>();
 
-    public UserJsonRepository(JsonFileStorage<User> jsonFileStorage) {
-        this.jsonFileStorage = jsonFileStorage;
-        this.users = jsonFileStorage.load();
+    public UserJsonRepository(@Value("${carrent.json.vehicles-file}") String filename
+    ) {
+        this.jsonFileStorage = new JsonFileStorage<User> (filename, User.class);
+        this.users = new ArrayList<>(jsonFileStorage.load());
     }
 
 

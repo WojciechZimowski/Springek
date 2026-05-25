@@ -3,38 +3,50 @@ package org.example.repositories.hibernate;
 import org.example.db.HibernateConfig;
 import org.example.models.Vehicle;
 import org.example.repositories.IVehicleRepository;
+import org.example.repositories.hibernate.jpa.VehicleJpaRepository;
 import org.hibernate.Session;
+import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
+import org.springframework.context.annotation.Profile;
+import org.springframework.stereotype.Repository;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
+@Repository
+@Profile("jpa")
 public class VehicleHibernateRepository implements IVehicleRepository {
-    private Session session;
+    private final VehicleJpaRepository vehicleJpaRepository;
+
+    public VehicleHibernateRepository(VehicleJpaRepository vehicleJpaRepository) {
+        this.vehicleJpaRepository = vehicleJpaRepository;
+    }
+
     @Override
     public List<Vehicle> findAll() {
-        return session.createQuery("from Vehicle",Vehicle.class).list();
+        return vehicleJpaRepository.findAll();
     }
 
     @Override
     public Optional<Vehicle> findById(String id) {
-        return Optional.ofNullable(session.get(Vehicle.class,id));
+
+        return vehicleJpaRepository.findById(id);
     }
 
     @Override
     public Vehicle save(Vehicle vehicle) {
-        return session.merge(vehicle);
+
+        if (vehicle.getId() == null || vehicle.getId().isBlank()) {
+            vehicle.setId(UUID.randomUUID().toString());
+        }
+        return vehicleJpaRepository.save(vehicle);
     }
 
     @Override
     public void deleteById(String id) {
-        Vehicle vehicle = session.get(Vehicle.class,id);
-        if(vehicle!=null){
-            session.remove(vehicle);
-        }
+        vehicleJpaRepository.deleteById(id);
     }
 
-    public void setSession(Session session) {
-        this.session = session;
-    }
+
 }

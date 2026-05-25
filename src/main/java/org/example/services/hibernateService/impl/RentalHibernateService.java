@@ -10,12 +10,18 @@ import org.example.repositories.hibernate.VehicleHibernateRepository;
 import org.example.services.hibernateService.RentalServiceInterface;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
+import org.springframework.context.annotation.Profile;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
+@Service
+@Profile("jpa")
+@Transactional
 public class RentalHibernateService implements RentalServiceInterface {
     private final RentalHibernateRepository rentalRepository;
     private final VehicleHibernateRepository vehicleRepository;
@@ -31,69 +37,29 @@ public class RentalHibernateService implements RentalServiceInterface {
 
     @Override
     public Rental rentVehicle(String userId, String vehicleId) {
-        Transaction tx = null;
-
-        boolean userAlreadyHasRental = false;
-        boolean vehicleAlreadyRented = false;
-        Vehicle vehicle = null;
-        User user = null;
-
-        try (Session session = HibernateConfig.getSessionFactory().openSession()) {
-            tx = session.beginTransaction();
-
-            Optional<Rental> activeUserRental = session.createQuery(
-                            "FROM Rental r WHERE r.user.id = :uId AND r.returnDateTime IS NULL", Rental.class)
-                    .setParameter("uId", userId)
-                    .uniqueResultOptional();
-
-            if (userHasActiveRental(userId)) {
-                userAlreadyHasRental = true;
-            }
-
-            vehicle = session.get(Vehicle.class, vehicleId);
-            user = session.get(User.class, userId);
-
-            Optional<Rental> activeVehicleRental = session.createQuery(
-                            "FROM Rental r WHERE r.vehicle.id = :vId AND r.returnDateTime IS NULL", Rental.class)
-                    .setParameter("vId", vehicleId)
-                    .uniqueResultOptional();
-
-            if (vehicleHasActiveRental(vehicleId)) {
-                vehicleAlreadyRented = true;
-            }
-            if (!userAlreadyHasRental && !vehicleAlreadyRented && vehicle != null && user != null) {
-                Rental rental = Rental.builder()
-                        .id(UUID.randomUUID().toString())
-                        .user(user)
-                        .vehicle(vehicle)
-                        .rentDateTime(LocalDateTime.now().toString())
-                        .build();
-
-                session.persist(rental);
-                tx.commit();
-                return rental;
-            } else {
-                tx.rollback();
-            }
-        } catch (RuntimeException e) {
-            if (tx != null && tx.isActive()) {
-                tx.rollback();
-            }
-            throw e;
-        }
-        if (userAlreadyHasRental) {
+        if (userHasActiveRental(userId)) {
             throw new IllegalStateException("Masz już aktywne wypożyczenie!");
         }
-        if (vehicle == null) {
-            throw new IllegalArgumentException("Nie znaleziono pojazdu o podanym ID");
-        }
-        if (user == null) {
-            throw new IllegalArgumentException("Nie znaleziono użytkownika o podanym ID");
-        }
-        if (vehicleAlreadyRented) {
+
+        Vehicle vehicle = vehicleRepository.findById(vehicleId)
+                .orElseThrow(() -> new IllegalArgumentException("Nie znaleziono pojazdu o podanym ID"));
+
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new IllegalArgumentException("Nie znaleziono użytkownika o podanym ID"));
+
+        if (vehicleHasActiveRental(vehicleId)) {
             throw new IllegalStateException("Ten pojazd jest już wypożyczony przez kogoś innego!");
         }
-        return null;
+
+
+        Rental rental = Rental.builder()
+                .id(UUID.randomUUID().toString())
+                .user(user)
+                .vehicle(vehicle)
+                .rentDateTime(LocalDateTime.now().toString())
+                .build();
+
+        return rentalRepository.save(rental);
     }
 
 
@@ -101,86 +67,47 @@ public class RentalHibernateService implements RentalServiceInterface {
     public Rental returnVehicle(String userId) {
         Transaction tx = null;
         try (Session session = HibernateConfig.getSessionFactory().openSession()) {
-            tx = session.beginTransaction();
 
-            Rental rental = session.createQuery(
-                            "FROM Rental r WHERE r.user.id = :uId AND r.returnDateTime IS NULL", Rental.class)
-                    .setParameter("uId", userId)
-                    .uniqueResultOptional()
+
+            Rental rental = findActiveRentalByUserId(userId)
                     .orElseThrow(() -> new IllegalArgumentException("Nie masz aktualnie żadnego wypożyczonego pojazdu"));
 
             rental.setReturnDateTime(LocalDateTime.now().toString());
-
-            session.merge(rental);
-            tx.commit();
-            return rental;
-        } catch (RuntimeException e) {
-            if (tx != null && tx.isActive()) {
-                tx.rollback();
-            }
-            throw e;
+            return rentalRepository.save(rental);
         }
     }
 
     @Override
+    @Transactional(readOnly = true)
     public Optional<Rental> findActiveRentalByUserId(String userId) {
-        try (Session session = HibernateConfig.getSessionFactory().openSession()) {
-            return session.createQuery(
-                            "FROM Rental r " +
-                                    "JOIN FETCH r.vehicle " +
-                                    "JOIN FETCH r.user " +
-                                    "WHERE r.user.id = :uId AND r.returnDateTime IS NULL",
-                            Rental.class)
-                    .setParameter("uId", userId)
-                    .uniqueResultOptional();
-        }
+        return rentalRepository.findByVehicleIdAndReturnDateIsNull(userId);
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<Rental> findAllRentals() {
-        try (Session session = HibernateConfig.getSessionFactory().openSession()) {
-            return session.createQuery(
-                            "FROM Rental r " +
-                                    "JOIN FETCH r.vehicle " +
-                                    "JOIN FETCH r.user",
-                            Rental.class)
-                    .getResultList();
-        }
+        return rentalRepository.findAll();
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<Rental> findUserRentals(String userId) {
-        try (Session session = HibernateConfig.getSessionFactory().openSession()) {
-            return session.createQuery(
-                            "FROM Rental r " +
-                                    "JOIN FETCH r.vehicle " +
-                                    "JOIN FETCH r.user " +
-                                    "WHERE r.user.id = :uId",
-                            Rental.class)
-                    .setParameter("uId", userId)
-                    .getResultList();
-        }
+        return rentalRepository.findAll().stream()
+                .filter(r -> r.getUser().getId().equals(userId))
+                .toList();
     }
 
     @Override
+    @Transactional(readOnly = true)
     public boolean userHasActiveRental(String userId) {
         return findActiveRentalByUserId(userId).isPresent();
     }
 
     @Override
+    @Transactional(readOnly = true)
     public boolean vehicleHasActiveRental(String vehicleId) {
-        try (Session session = HibernateConfig.getSessionFactory().openSession()) {
-            Optional<Rental> active = session.createQuery(
-                            "FROM Rental r WHERE r.vehicle.id = :vId AND r.returnDateTime IS NULL", Rental.class)
-                    .setParameter("vId", vehicleId)
-                    .uniqueResultOptional();
-            return active.isPresent();
-        }
+        return rentalRepository.findByVehicleIdAndReturnDateIsNull(vehicleId).isPresent();
     }
 
-    private void setSession(Session session) {
-        rentalRepository.setSession(session);
-        vehicleRepository.setSession(session);
-        userRepository.setSession(session);
-    }
+
 }

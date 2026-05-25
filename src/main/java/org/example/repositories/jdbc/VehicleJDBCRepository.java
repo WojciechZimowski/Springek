@@ -7,6 +7,7 @@ import org.example.models.Rental;
 import org.example.models.Vehicle;
 import org.example.repositories.IVehicleRepository;
 import org.springframework.context.annotation.Profile;
+import org.springframework.jdbc.datasource.DataSourceUtils;
 import org.springframework.stereotype.Repository;
 
 import javax.sql.DataSource;
@@ -31,14 +32,17 @@ public class VehicleJDBCRepository implements IVehicleRepository {
     public List<Vehicle> findAll() {
         List<Vehicle> vehicles = new ArrayList<>();
         String sql = "SELECT * FROM vehicle";
-        try(Connection conn = JdbcConnectionManager.getInstance().getConnection();
-            PreparedStatement stmt = conn.prepareStatement(sql);
+        Connection connection = DataSourceUtils.getConnection(dataSource);
+        try(
+            PreparedStatement stmt = connection.prepareStatement(sql);
             ResultSet rs = stmt.executeQuery()){
             while(rs.next()){
                 vehicles.add(mapRow(rs));
             }
         } catch (SQLException e) {
             throw new RuntimeException(e);
+        }finally {
+            DataSourceUtils.releaseConnection(connection, dataSource);
         }
         return vehicles;
     }
@@ -46,7 +50,8 @@ public class VehicleJDBCRepository implements IVehicleRepository {
     @Override
     public Optional<Vehicle> findById(String id) {
         String sql = "Select * from vehicle where id = ?";
-        try(Connection conn = JdbcConnectionManager.getInstance().getConnection();
+        Connection conn = DataSourceUtils.getConnection(dataSource);
+        try(
             PreparedStatement stmt = conn.prepareStatement(sql)){
             stmt.setString(1,id);
             try(ResultSet rs = stmt.executeQuery()){
@@ -56,6 +61,8 @@ public class VehicleJDBCRepository implements IVehicleRepository {
             }
         } catch (SQLException e) {
             throw new RuntimeException(e);
+        }finally {
+            DataSourceUtils.releaseConnection(conn, dataSource);
         }
         return Optional.empty();
     }
@@ -89,12 +96,15 @@ public class VehicleJDBCRepository implements IVehicleRepository {
     @Override
     public void deleteById(String id) {
         String sql = "DELETE FROM vehicle WHERE id = ?";
-        try(Connection conn = JdbcConnectionManager.getInstance().getConnection();
+        Connection conn = DataSourceUtils.getConnection(dataSource);
+        try(
             PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setString(1,id);
             stmt.executeUpdate();
         } catch (SQLException e) {
             throw new RuntimeException(e);
+        }finally {
+            DataSourceUtils.releaseConnection(conn, dataSource);
         }
     }
     private Vehicle mapRow(ResultSet rs)throws SQLException{

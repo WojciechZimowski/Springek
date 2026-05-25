@@ -25,12 +25,12 @@ import java.util.ArrayList;
 
 public class Main {
     public static void main(String[] args) {
-
+        
         Type categoryListType = new TypeToken<ArrayList<VehicleCategoryConfig>>(){}.getType();
         JsonFileStorage<VehicleCategoryConfig> configStorage = new JsonFileStorage<>("categories.json", categoryListType);
         VehicleCategoryConfigRepository configRepo = new VehicleCategoryConfigJsonRepository(configStorage);
         VehicleCategoryConfigService configService = new VehicleCategoryConfigService(configRepo);
-
+        //integracja z jdbc
         System.out.println(">>> Uruchamianie systemu w trybie HIBERNATE");
 
         RentalHibernateRepository rentalRepo = new RentalHibernateRepository();
