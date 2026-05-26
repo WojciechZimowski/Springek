@@ -31,19 +31,22 @@ public class VehicleJDBCRepository implements IVehicleRepository {
     @Override
     public List<Vehicle> findAll() {
         List<Vehicle> vehicles = new ArrayList<>();
-        String sql = "SELECT * FROM vehicle";
+        String sql = "SELECT id, category, brand, model, production_year, plate, price, attributes FROM vehicle";
+
         Connection connection = DataSourceUtils.getConnection(dataSource);
-        try(
-            PreparedStatement stmt = connection.prepareStatement(sql);
-            ResultSet rs = stmt.executeQuery()){
-            while(rs.next()){
+
+        try (PreparedStatement stmt = connection.prepareStatement(sql);
+             ResultSet rs = stmt.executeQuery()) {
+
+            while (rs.next()) {
                 vehicles.add(mapRow(rs));
             }
         } catch (SQLException e) {
-            throw new RuntimeException(e);
-        }finally {
+            throw new RuntimeException("Error occurred while reading vehicles", e);
+        } finally {
             DataSourceUtils.releaseConnection(connection, dataSource);
         }
+
         return vehicles;
     }
 

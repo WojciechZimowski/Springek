@@ -28,7 +28,7 @@ public class UserController {
         return ResponseEntity.status(HttpStatus.CREATED).body(savedUser);
     }
 
-    // --- ORAZ METODĘ LOGOWANIA (PRZYDA SIĘ ZA CHWILĘ) ---
+
     @PostMapping("/login")
     public ResponseEntity<String> login(@RequestBody User user) {
 
