@@ -6,11 +6,14 @@ import org.example.services.hibernateService.AuthServiceInterface;
 import org.example.services.hibernateService.RentalServiceInterface;
 import org.example.services.hibernateService.UserServiceInterface;
 import org.example.services.hibernateService.VehicleServiceInterface;
+import org.springframework.boot.CommandLineRunner;
+import org.springframework.stereotype.Component;
 
 import java.time.LocalDateTime;
 import java.util.*;
 
-public class UIForUser {
+@Component
+public class UIForUser implements CommandLineRunner {
     private final VehicleServiceInterface vehicleService;
     private final UserServiceInterface userService;
     private final RentalServiceInterface rentalService;
@@ -280,5 +283,10 @@ public class UIForUser {
                 }
             }
         }
+    }
+
+    @Override
+    public void run(String... args) throws Exception {
+        start();
     }
 }

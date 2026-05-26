@@ -84,7 +84,7 @@ public class RentalJDBCRepository implements RentalRepository {
             stmt.setString(2, rental.getVehicleId());
             stmt.setString(3, rental.getUserId());
             stmt.setString(4, rental.getRentDateTime());
-            stmt.setString(5, rental.getReturnDateTime());
+            stmt.setString(5, rental.getReturnDate());
 
             stmt.executeUpdate();
             return rental;
@@ -140,7 +140,7 @@ public class RentalJDBCRepository implements RentalRepository {
                 .vehicle(tempVehicle)
                 .user(tempUser)
                 .rentDateTime(rs.getString("rent_date"))
-                .returnDateTime(rs.getString("return_date"))
+                .returnDate(rs.getString("return_date"))
                 .build();
     }
 }

@@ -8,5 +8,5 @@ import java.util.Optional;
 
 @Profile("jpa")
 public interface IRentalJpaRepository extends JpaRepository<Rental,String> {
-    Optional<Rental> findByVehicleIdAndReturnDateIsNull(String vehicleId);
+    Optional<Rental> findByVehicle_IdAndReturnDateIsNull(String vehicleId);
 }

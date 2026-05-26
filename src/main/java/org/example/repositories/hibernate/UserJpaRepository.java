@@ -31,7 +31,7 @@ public class UserJpaRepository implements IUserRepository {
 
     @Override
     public Optional<User> findByLogin(String login) {
-        return userJpaRepository.findById(login);
+        return userJpaRepository.findByLogin(login);
     }
 
     @Override

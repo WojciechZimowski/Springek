@@ -16,7 +16,7 @@ import java.util.UUID;
 public class AuthService implements AuthServiceInterface {
     private final IUserRepository userRepository;
 
-    public AuthService(UserJpaRepository userRepository) {
+    public AuthService(IUserRepository userRepository) {
         this.userRepository = userRepository;
     }
 //entity manager aby działał ze springiem!!

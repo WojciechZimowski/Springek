@@ -24,7 +24,7 @@ public class Rental {
     @Column(name="rent_date",nullable = false)
     private String rentDateTime;
     @Column(name="return_date")
-    private String returnDateTime;
+    private String returnDate;
 
     public Rental copy() {
         return Rental.builder()
@@ -32,17 +32,23 @@ public class Rental {
                 .vehicle(vehicle)
                 .user(user)
                 .rentDateTime(rentDateTime)
-                .returnDateTime(returnDateTime)
+                .returnDate(returnDate)
                 .build();
     }
 
     public boolean isActive() {
-        return returnDateTime == null || returnDateTime.isBlank();
+        return returnDate == null || returnDate.isBlank();
     }
     public String getVehicleId() {
         return vehicle==null?null:vehicle.getId();
     }
     public String getUserId() {
         return user==null?null:user.getId();
+    }
+    public Vehicle getVehicle() {
+        return this.vehicle;
+    }
+    public User getUser() {
+        return this.user;
     }
 }

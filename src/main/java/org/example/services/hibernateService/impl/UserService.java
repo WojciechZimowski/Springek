@@ -16,7 +16,7 @@ public class UserService implements UserServiceInterface {
     private final IUserRepository userRepository;
     private final RentalRepository rentalRepository;
 
-    public UserService(UserJpaRepository userRepository, RentalJpaRepository rentalRepository) {
+    public UserService(IUserRepository userRepository, RentalRepository rentalRepository) {
         this.userRepository = userRepository;
         this.rentalRepository = rentalRepository;
     }

@@ -57,6 +57,6 @@ public class RentalJsonRepository implements RentalRepository {
     @Override
     public Optional<Rental> findByVehicleIdAndReturnDateIsNull(String vehicleId) {
         return storage.load().stream().filter(r->r.getVehicleId().equals(vehicleId)).
-                filter(r->r.getReturnDateTime()==null).findFirst().map(Rental::copy);
+                filter(r->r.getReturnDate()==null).findFirst().map(Rental::copy);
     }
 }

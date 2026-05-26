@@ -17,7 +17,7 @@ public class VehicleService implements VehicleServiceInterface {
     private final IVehicleRepository vehicleRepository;
     private final RentalRepository rentalRepository;
 
-    public VehicleService(VehicleJpaRepository vehicleRepository, RentalJpaRepository rentalRepository) {
+    public VehicleService(IVehicleRepository vehicleRepository, RentalRepository rentalRepository) {
         this.vehicleRepository = vehicleRepository;
         this.rentalRepository = rentalRepository;
     }

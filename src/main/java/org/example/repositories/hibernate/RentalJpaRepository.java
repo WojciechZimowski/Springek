@@ -45,7 +45,7 @@ public class RentalJpaRepository implements RentalRepository {
 
     @Override
     public Optional<Rental> findByVehicleIdAndReturnDateIsNull(String vehicleId) {
-        return rentalJpaRepository.findByVehicleIdAndReturnDateIsNull(vehicleId);
+        return rentalJpaRepository.findByVehicle_IdAndReturnDateIsNull(vehicleId);
     }
 
 

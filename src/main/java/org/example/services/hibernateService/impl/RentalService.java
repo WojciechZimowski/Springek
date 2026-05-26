@@ -30,9 +30,9 @@ public class RentalService implements RentalServiceInterface {
     private final IVehicleRepository vehicleRepository;
     private final IUserRepository userRepository;
 
-    public RentalService(RentalJpaRepository rentalRepository,
-                         VehicleJpaRepository vehicleHibernateService,
-                         UserJpaRepository userHibernateService) {
+    public RentalService(RentalRepository rentalRepository,
+                         IVehicleRepository vehicleHibernateService,
+                         IUserRepository userHibernateService) {
         this.rentalRepository = rentalRepository;
         this.vehicleRepository = vehicleHibernateService;
         this.userRepository = userHibernateService;
@@ -75,7 +75,7 @@ public class RentalService implements RentalServiceInterface {
             Rental rental = findActiveRentalByUserId(userId)
                     .orElseThrow(() -> new IllegalArgumentException("Nie masz aktualnie żadnego wypożyczonego pojazdu"));
 
-            rental.setReturnDateTime(LocalDateTime.now().toString());
+            rental.setReturnDate(LocalDateTime.now().toString());
             return rentalRepository.save(rental);
         }
     }

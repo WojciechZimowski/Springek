@@ -9,7 +9,6 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 import java.util.Optional;
 @Repository
-@Profile("json")
 public class VehicleCategoryConfigJsonRepository implements VehicleCategoryConfigRepository {
     private final JsonFileStorage<VehicleCategoryConfig> jsonFileStorage;
 
