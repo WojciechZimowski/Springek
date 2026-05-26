@@ -1,7 +1,9 @@
 package org.example.controllers;
 
 import org.example.models.User;
+import org.example.repositories.IUserRepository;
 import org.example.services.hibernateService.UserServiceInterface;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -11,9 +13,31 @@ import java.util.List;
 @RequestMapping("/api/users")
 public class UserController {
     private final UserServiceInterface userService;
-
-    public UserController(UserServiceInterface userService) {
+    private final IUserRepository userRepository;
+    public UserController(UserServiceInterface userService, IUserRepository userRepository) {
         this.userService = userService;
+        this.userRepository = userRepository;
+    }
+    @PostMapping("/register")
+    public ResponseEntity<?> register(@RequestBody User user) {
+        if (userRepository.findById(user.getId()).isPresent()) {
+            return ResponseEntity.status(HttpStatus.CONFLICT)
+                    .body(java.util.Map.of("error", "Użytkownik o podanym ID już istnieje!"));
+        }
+        User savedUser = userRepository.save(user); // Zapis bezpośrednio przez repo
+        return ResponseEntity.status(HttpStatus.CREATED).body(savedUser);
+    }
+
+    // --- ORAZ METODĘ LOGOWANIA (PRZYDA SIĘ ZA CHWILĘ) ---
+    @PostMapping("/login")
+    public ResponseEntity<String> login(@RequestBody User user) {
+
+        User foundUser = userService.findById(user.getId());
+
+        if (foundUser != null && foundUser.getPasswordHash().equals(user.getPasswordHash())) {
+            return ResponseEntity.ok("Zalogowano pomyślnie");
+        }
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Błędne dane logowania");
     }
 
     @GetMapping
