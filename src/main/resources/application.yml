@@ -1,6 +1,6 @@
 spring:
 profiles:
-active: ${APP_PROFILE:json}
+active: ${SPRING_PROFILES_ACTIVE:json}
 main:
 banner-mode: off
 server:
