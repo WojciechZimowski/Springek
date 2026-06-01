@@ -78,7 +78,8 @@ public class VehicleJDBCRepository implements IVehicleRepository {
         String sql = "INSERT INTO vehicle (id, category, brand, model, year, plate, price, attributes) " +
                 "VALUES (?, ?, ?, ?, ?, ?, ?, ?::jsonb) " +
                 "ON CONFLICT (id) DO UPDATE SET price = EXCLUDED.price, attributes = EXCLUDED.attributes";
-        try(Connection conn = JdbcConnectionManager.getInstance().getConnection();
+        Connection conn = DataSourceUtils.getConnection(dataSource);
+        try(
             PreparedStatement stmt = conn.prepareStatement(sql)){
             stmt.setString(1,vehicle.getId());
             stmt.setString(2,vehicle.getCategory());
