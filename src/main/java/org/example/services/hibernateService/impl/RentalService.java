@@ -23,7 +23,6 @@ import java.util.Optional;
 import java.util.UUID;
 
 @Service
-@Profile("jpa")
 @Transactional
 public class RentalService implements RentalServiceInterface {
     private final RentalRepository rentalRepository;
