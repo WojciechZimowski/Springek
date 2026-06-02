@@ -5,6 +5,7 @@ import org.example.repositories.IVehicleRepository;
 import org.example.repositories.RentalRepository;
 import org.example.repositories.hibernate.RentalJpaRepository;
 import org.example.repositories.hibernate.VehicleJpaRepository;
+import org.example.services.VehicleValidator;
 import org.example.services.hibernateService.VehicleServiceInterface;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -16,10 +17,12 @@ import java.util.List;
 public class VehicleService implements VehicleServiceInterface {
     private final IVehicleRepository vehicleRepository;
     private final RentalRepository rentalRepository;
+    private final VehicleValidator vehicleValidator;
 
-    public VehicleService(IVehicleRepository vehicleRepository, RentalRepository rentalRepository) {
+    public VehicleService(IVehicleRepository vehicleRepository, RentalRepository rentalRepository, VehicleValidator vehicleValidator) {
         this.vehicleRepository = vehicleRepository;
         this.rentalRepository = rentalRepository;
+        this.vehicleValidator = vehicleValidator;
     }
 
     @Override
@@ -45,6 +48,7 @@ public class VehicleService implements VehicleServiceInterface {
 
     @Override
     public Vehicle addVehicle(Vehicle vehicle) {
+        vehicleValidator.validate(vehicle);
         return vehicleRepository.save(vehicle);
 
     }
