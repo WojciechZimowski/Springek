@@ -1,10 +1,7 @@
 package org.example.models;
 
 import io.hypersistence.utils.hibernate.type.json.JsonBinaryType;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
 import org.hibernate.annotations.Type;
@@ -24,6 +21,7 @@ import java.util.Map;
 @Table(name="vehicle")
 public  class Vehicle {
     @Id
+    @GeneratedValue(strategy = GenerationType.UUID)
     @Column(nullable=false,unique=true)
     private String id;
 

@@ -8,7 +8,8 @@ import java.util.Map;
 @Component
 public class VehicleValidator {
     private final VehicleCategoryConfigService configService;
-
+    //jak tokenu ni ma uzytkownik musi byc zalogowany aby zoabczyc na postmanie
+    //musimy uzyc autoryzacji w postmanie BearerToken w (Authorization)
     public VehicleValidator(VehicleCategoryConfigService configService) {
         this.configService = configService;
     }
