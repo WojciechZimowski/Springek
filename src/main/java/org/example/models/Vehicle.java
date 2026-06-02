@@ -4,7 +4,9 @@ import io.hypersistence.utils.hibernate.type.json.JsonBinaryType;
 import jakarta.persistence.*;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
+import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.annotations.Type;
+import org.hibernate.type.SqlTypes;
 
 import java.io.Serializable;
 import java.util.Collections;
@@ -33,10 +35,8 @@ public  class Vehicle {
     @Column(columnDefinition = "NUMERIC")
     private Double price;//warto zrobic klase do waluty
 
-    @Type(JsonBinaryType.class)
+    @JdbcTypeCode(SqlTypes.JSON)
     @Column(columnDefinition = "jsonb")
-    @Getter(AccessLevel.NONE)
-    @Setter(AccessLevel.NONE)
     private Map<String,Object> attributes= new HashMap<>();
 
     @Builder
