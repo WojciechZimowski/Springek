@@ -36,7 +36,7 @@ public class UserController {
     @PostMapping("/login")
     public ResponseEntity<String> login(@RequestBody User user) {
 
-        User foundUser = userService.findById(user.getId());
+        User foundUser = userService.findById(user.getLogin());
 
         if (foundUser != null && foundUser.getPasswordHash().equals(user.getPasswordHash())) {
             return ResponseEntity.ok("Zalogowano pomyślnie");
