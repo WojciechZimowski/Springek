@@ -1,5 +1,6 @@
 package org.example.services.hibernateService.impl;
 
+import org.example.models.Rental;
 import org.example.models.User;
 import org.example.repositories.IUserRepository;
 import org.example.repositories.RentalRepository;
@@ -40,14 +41,17 @@ public class UserService implements UserServiceInterface {
             throw new IllegalArgumentException("Nie możesz usunąć samego siebie");
         }
 
-        boolean hasActiveRental = rentalRepository.findByVehicleIdAndReturnDateIsNull(id).isPresent();
+        List<Rental> allRentals = rentalRepository.findAll();
+
+        boolean hasActiveRental = allRentals.stream()
+                .anyMatch(r -> r.getUserId().equals(id) && r.getReturnDate() == null);
 
         if (hasActiveRental) {
-            throw new IllegalStateException("Użytkownik posiada aktywne wypożyczenie!");
+            throw new IllegalStateException("Użytkownik posiada aktywne wypożyczenie i nie może zostać usunięty!");
         }
 
         User user = userRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("Nie znaleziono użytkownika o podanym ID: " + id));
+                .orElseThrow(() -> new IllegalArgumentException("Nie znaleziono użytkownika"));
 
         userRepository.deleteById(user.getId());
     }
