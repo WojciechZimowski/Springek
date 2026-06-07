@@ -82,7 +82,9 @@ public class RentalService implements RentalServiceInterface {
     @Override
     @Transactional(readOnly = true)
     public Optional<Rental> findActiveRentalByUserId(String userId) {
-        return rentalRepository.findByVehicleIdAndReturnDateIsNull(userId);
+        return rentalRepository.findAll().stream()
+                .filter(r -> r.getUser().getId().equals(userId) && r.isActive())
+                .findFirst();
     }
 
     @Override

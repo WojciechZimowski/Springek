@@ -36,6 +36,7 @@ public class RentalController {
     //  | |____|____|   |   |____|____|   ||___|
     //  |           |   |   |         |   |    |
     // ==--(o)(o)---'---'---'---------'---'(o)-'
+    //zamiana w mainie tylko spring
 
     @GetMapping
     public List<Rental> listAll(
