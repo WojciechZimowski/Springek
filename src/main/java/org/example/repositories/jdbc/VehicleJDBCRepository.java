@@ -31,7 +31,7 @@ public class VehicleJDBCRepository implements IVehicleRepository {
     @Override
     public List<Vehicle> findAll() {
         List<Vehicle> vehicles = new ArrayList<>();
-        String sql = "SELECT id, category, brand, model, production_year, plate, price, attributes FROM vehicle";
+        String sql = "SELECT id, category, brand, model, year, plate, price, attributes FROM vehicle";
 
         Connection connection = DataSourceUtils.getConnection(dataSource);
 
@@ -120,7 +120,7 @@ public class VehicleJDBCRepository implements IVehicleRepository {
         category(rs.getString("category"))
                 .brand(rs.getString("brand"))
                 .model(rs.getString("model"))
-                .year(rs.getInt("production_year"))
+                .year(rs.getInt("year"))
                 .plate(rs.getString("plate"))
                 .price(rs.getDouble("price"))
                 .attributes(attributes != null ? attributes : new HashMap<>())
