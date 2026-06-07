@@ -94,6 +94,8 @@ public class VehicleJDBCRepository implements IVehicleRepository {
         } catch (SQLException e) {
             
             throw new RuntimeException(e);
+        }finally {
+            DataSourceUtils.releaseConnection(conn, dataSource);
         }
     }
 
@@ -118,7 +120,7 @@ public class VehicleJDBCRepository implements IVehicleRepository {
         category(rs.getString("category"))
                 .brand(rs.getString("brand"))
                 .model(rs.getString("model"))
-                .year(rs.getInt("year"))
+                .year(rs.getInt("production_year"))
                 .plate(rs.getString("plate"))
                 .price(rs.getDouble("price"))
                 .attributes(attributes != null ? attributes : new HashMap<>())
