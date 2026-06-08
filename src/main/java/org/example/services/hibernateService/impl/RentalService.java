@@ -67,16 +67,11 @@ public class RentalService implements RentalServiceInterface {
 
     @Override
     public Rental returnVehicle(String userId) {
-        Transaction tx = null;
-        try (Session session = HibernateConfig.getSessionFactory().openSession()) {
+        Rental rental = findActiveRentalByUserId(userId)
+                .orElseThrow(() -> new IllegalArgumentException("Nie masz aktualnie żadnego wypożyczonego pojazdu"));
 
-
-            Rental rental = findActiveRentalByUserId(userId)
-                    .orElseThrow(() -> new IllegalArgumentException("Nie masz aktualnie żadnego wypożyczonego pojazdu"));
-
-            rental.setReturnDate(LocalDateTime.now().toString());
-            return rentalRepository.save(rental);
-        }
+        rental.setReturnDate(LocalDateTime.now().toString());
+        return rentalRepository.save(rental);
     }
 
     @Override
