@@ -1,5 +1,6 @@
 package org.example.controllers;
 
+import org.apache.commons.codec.digest.DigestUtils;
 import org.example.models.User;
 import org.example.repositories.IUserRepository;
 import org.example.services.hibernateService.UserServiceInterface;
@@ -28,6 +29,8 @@ public class UserController {
             return ResponseEntity.status(HttpStatus.CONFLICT)
                     .body(java.util.Map.of("error", "Użytkownik o podanym ID już istnieje!"));
         }
+        String pass=user.getPasswordHash();
+        user.setPasswordHash(DigestUtils.sha256Hex(pass));
         User savedUser = userRepository.save(user); // Zapis bezpośrednio przez repo
         return ResponseEntity.status(HttpStatus.CREATED).body(savedUser);
     }
