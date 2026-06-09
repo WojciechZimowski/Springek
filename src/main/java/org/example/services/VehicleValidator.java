@@ -35,7 +35,7 @@ public class VehicleValidator {
             String expectedType = entry.getValue();
 
             if (!vehicleAttrs.containsKey(attrName)) {
-                throw new RuntimeException("Brak atrybutu [" + attrName + "] dla kategorii " + vehicle.getCategory());
+                throw new IllegalArgumentException("Brak atrybutu [" + attrName + "] dla kategorii " + vehicle.getCategory());
             }
 
             Object value = vehicleAttrs.get(attrName);
@@ -53,11 +53,11 @@ public class VehicleValidator {
                     throw new Exception();
                 }
             } catch (Exception e) {
-                throw new RuntimeException("Atrybut [" + name + "] musi być liczbą (integer)!");
+                throw new IllegalArgumentException("Atrybut [" + name + "] musi być liczbą (integer)!");
             }
         }
         if (type.equals("string") && (value == null || value.toString().isBlank())) {
-            throw new RuntimeException("Atrybut [" + name + "] nie może być pusty!");
+            throw new IllegalArgumentException("Atrybut [" + name + "] nie może być pusty!");
         }
     }
 }
