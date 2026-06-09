@@ -17,10 +17,12 @@ public class VehicleValidator {
     public void validate(Vehicle vehicle) {
 
         if (vehicle.getBrand() == null || vehicle.getBrand().isBlank())
-            throw new RuntimeException("Marka nie może być pusta!");
+            throw new IllegalArgumentException("Marka nie może być pusta!");
         if(!configService.categoryExists(vehicle.getCategory())){
-            throw new RuntimeException("BŁĄD: Kategoria "+vehicle.getCategory()+" Nie istnieje");
+            throw new IllegalArgumentException("BŁĄD: Kategoria "+vehicle.getCategory()+" Nie istnieje");
         }
+
+
 
 
         VehicleCategoryConfig config = configService.getByCategory(vehicle.getCategory());
